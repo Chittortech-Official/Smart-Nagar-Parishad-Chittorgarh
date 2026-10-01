@@ -36,8 +36,9 @@ const ROLE_METAS = {
   super_admin: { title: 'सुपर एडमिन',     sub: 'System Master',  color: '#b91c1c', bg: '#fee2e2' },
 };
 
-export default function Sidebar() {
-  const { profile, logout } = useAuth();
+export default function Sidebar({ currentProfile }) {
+  const { profile: authProfile, logout } = useAuth();
+  const profile = currentProfile || authProfile;
   const pathname = usePathname();
   const role = profile?.role;
   const navItems = NAV[role] || [];

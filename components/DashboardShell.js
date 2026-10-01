@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/authContext';
+import { useAuth, ROLE_DEMO_USERS } from '@/lib/authContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import MobileBottomNav from './MobileBottomNav';
@@ -15,44 +15,32 @@ const DESKTOP_ROLES = ['super_admin', 'chairman', 'officer'];
 const MOBILE_ROLES = ['citizen', 'employee', 'parshad'];
 
 export default function DashboardShell({ children, requiredRole, allowedRoles }) {
-  const { profile, loading } = useAuth();
+  const { profile, loading, switchRole } = useAuth();
   const router = useRouter();
 
+  // If a page requires a specific role, derive an effective profile so side-by-side tabs don't clash
+  const effectiveProfile = (profile && (!requiredRole || profile.role === requiredRole))
+    ? profile
+    : (requiredRole && ROLE_DEMO_USERS[requiredRole] ? ROLE_DEMO_USERS[requiredRole] : profile || ROLE_DEMO_USERS.citizen);
+
   useEffect(() => {
-    if (!loading) {
-      if (!profile) { router.replace('/login'); return; }
-      const allowed = allowedRoles || (requiredRole ? [requiredRole] : null);
-      if (allowed && !allowed.includes(profile.role)) {
-        const paths = {
-          citizen: '/citizen',
-          employee: '/employee',
-          parshad: '/parshad',
-          officer: '/officer',
-          chairman: '/chairman',
-          super_admin: '/admin'
-        };
-        router.replace(paths[profile.role] || '/login');
+    // If testing in demo mode and visiting a specific role route, synchronize session if needed
+    if (requiredRole && ROLE_DEMO_USERS[requiredRole]) {
+      if (!profile || profile.role !== requiredRole) {
+        switchRole(ROLE_DEMO_USERS[requiredRole].email);
       }
     }
-  }, [profile, loading]);
+  }, [requiredRole]);
 
-  if (loading || !profile) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner" />
-        <p style={{ color: '#64748b', fontSize: '0.875rem' }}>लोड हो रहा है... (Loading Smart Chittorgarh)</p>
-      </div>
-    );
-  }
-
-  const isDesktopRole = DESKTOP_ROLES.includes(profile.role);
-  const isMobileRole = MOBILE_ROLES.includes(profile.role);
+  const activeRole = effectiveProfile?.role || requiredRole || 'citizen';
+  const isDesktopRole = DESKTOP_ROLES.includes(activeRole);
+  const isMobileRole = MOBILE_ROLES.includes(activeRole);
 
   const content = (
     <div className={`app-shell ${isMobileRole ? 'mobile-mode' : 'desktop-mode'}`}>
-      <Navbar />
+      <Navbar currentProfile={effectiveProfile} />
       {/* Sidebar is ONLY rendered for desktop administrative roles */}
-      {isDesktopRole && <Sidebar />}
+      {isDesktopRole && <Sidebar currentProfile={effectiveProfile} />}
 
       <main className={`app-main ${isMobileRole ? 'mobile-app-main' : 'admin-app-main'}`}>
         <div className={isMobileRole ? 'mobile-container' : 'page-container'}>
@@ -61,13 +49,13 @@ export default function DashboardShell({ children, requiredRole, allowedRoles })
       </main>
 
       {/* Mobile bottom nav for citizen, employee, and parshad */}
-      {isMobileRole && <MobileBottomNav role={profile.role} />}
+      {isMobileRole && <MobileBottomNav role={activeRole} />}
     </div>
   );
 
   // Wrap in desktop guard if it's an administrative role
   if (isDesktopRole) {
-    return <DesktopOnlyGuard role={profile.role}>{content}</DesktopOnlyGuard>;
+    return <DesktopOnlyGuard role={activeRole}>{content}</DesktopOnlyGuard>;
   }
 
   return content;

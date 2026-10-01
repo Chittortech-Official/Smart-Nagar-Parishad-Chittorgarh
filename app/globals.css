@@ -1108,16 +1108,17 @@ tbody tr:last-child td {
 
 /* ── Role Switcher Floating Menu (Desktop Only) ──────────────── */
 .role-switcher {
-  display: none;
+  display: block;
+  position: fixed;
+  bottom: 74px;
+  right: 14px;
+  z-index: 9999;
 }
 
 @media (min-width: 1024px) {
   .role-switcher {
-    display: block;
-    position: fixed;
     bottom: var(--space-4);
     right: var(--space-4);
-    z-index: 9999;
   }
 }
 

@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
 import {
   Users, UserCircle, Briefcase, Building2,
-  Crown, Shield, X, Smartphone, Monitor
+  Crown, Shield, X, Smartphone, Monitor, ExternalLink
 } from 'lucide-react';
+import Link from 'next/link';
 
 const MOBILE_ROLES = [
   { email: 'citizen@demo.in',  label: 'नागरिक (Citizen)',        sub: 'Rajesh Kumar · Ward 24',   icon: UserCircle, color: '#0284c7', role: 'citizen',     path: '/citizen' },
@@ -32,7 +33,7 @@ export default function RoleSwitcher() {
   }
 
   return (
-    <div className="role-switcher hide-mobile">
+    <div className="role-switcher">
       {open && (
         <div className="role-switcher-menu">
           <div className="role-switcher-header">
@@ -51,20 +52,44 @@ export default function RoleSwitcher() {
             const Icon = r.icon;
             const isCurrent = profile?.role === r.role;
             return (
-              <button
-                key={r.email}
-                className={`role-option ${isCurrent ? 'current' : ''}`}
-                onClick={() => handleSwitch(r)}
-              >
-                <span className="role-dot" style={{ background: r.color }} />
-                <Icon size={15} style={{ color: r.color, flexShrink: 0 }} />
-                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <span className="role-name">
-                    {r.label} {isCurrent && '✓'}
+              <div key={r.email} style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', marginBottom: 4 }}>
+                <button
+                  className={`role-option ${isCurrent ? 'current' : ''}`}
+                  onClick={() => handleSwitch(r)}
+                  style={{ flex: 1 }}
+                >
+                  <span className="role-dot" style={{ background: r.color }} />
+                  <Icon size={15} style={{ color: r.color, flexShrink: 0 }} />
+                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <span className="role-name">
+                      {r.label} {isCurrent && '✓'}
+                    </span>
+                    <span className="role-sub">{r.sub}</span>
                   </span>
-                  <span className="role-sub">{r.sub}</span>
-                </span>
-              </button>
+                </button>
+                <a
+                  href={r.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="अलग टैब में खोलें (Open in New Tab / Side-by-Side)"
+                  style={{
+                    padding: '8px',
+                    color: '#64748b',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#1e3a8a'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#64748b'}
+                >
+                  <ExternalLink size={14} />
+                </a>
+              </div>
             );
           })}
 
@@ -79,20 +104,44 @@ export default function RoleSwitcher() {
             const Icon = r.icon;
             const isCurrent = profile?.role === r.role;
             return (
-              <button
-                key={r.email}
-                className={`role-option ${isCurrent ? 'current' : ''}`}
-                onClick={() => handleSwitch(r)}
-              >
-                <span className="role-dot" style={{ background: r.color }} />
-                <Icon size={15} style={{ color: r.color, flexShrink: 0 }} />
-                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <span className="role-name">
-                    {r.label} {isCurrent && '✓'}
+              <div key={r.email} style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', marginBottom: 4 }}>
+                <button
+                  className={`role-option ${isCurrent ? 'current' : ''}`}
+                  onClick={() => handleSwitch(r)}
+                  style={{ flex: 1 }}
+                >
+                  <span className="role-dot" style={{ background: r.color }} />
+                  <Icon size={15} style={{ color: r.color, flexShrink: 0 }} />
+                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <span className="role-name">
+                      {r.label} {isCurrent && '✓'}
+                    </span>
+                    <span className="role-sub">{r.sub}</span>
                   </span>
-                  <span className="role-sub">{r.sub}</span>
-                </span>
-              </button>
+                </button>
+                <a
+                  href={r.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="अलग टैब में खोलें (Open in New Tab / Side-by-Side)"
+                  style={{
+                    padding: '8px',
+                    color: '#64748b',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textDecoration: 'none',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#1e3a8a'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#64748b'}
+                >
+                  <ExternalLink size={14} />
+                </a>
+              </div>
             );
           })}
         </div>

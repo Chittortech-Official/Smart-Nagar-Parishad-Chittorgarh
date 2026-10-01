@@ -12,15 +12,15 @@ import {
 } from 'lucide-react';
 
 const MOBILE_PORTALS = [
-  { href: '/login?role=citizen',  label: 'नागरिक पोर्टल',  en: 'Citizen Portal',     desc: 'समस्या दर्ज करें व स्थिति ट्रैक करें', icon: UserCircle,  color: '#0284c7', bg: '#e0f2fe', border: '#bae6fd' },
-  { href: '/login?role=employee', label: 'फील्ड कर्मचारी', en: 'Field Employee',     desc: 'GPS हाजिरी व कार्य पूर्णता',        icon: Users,       color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0' },
-  { href: '/login?role=parshad',  label: 'वार्ड पार्षद',   en: 'Ward Councillor',    desc: 'अपने वार्ड की सभी समस्याओं पर नजर', icon: Briefcase,   color: '#7c3aed', bg: '#f3e8ff', border: '#e9d5ff' },
+  { href: '/citizen',  label: 'नागरिक पोर्टल',  en: 'Citizen Portal',     desc: 'समस्या दर्ज करें व स्थिति ट्रैक करें', icon: UserCircle,  color: '#0284c7', bg: '#e0f2fe', border: '#bae6fd', roleEmail: 'citizen@demo.in' },
+  { href: '/employee', label: 'फील्ड कर्मचारी', en: 'Field Employee',     desc: 'GPS हाजिरी व कार्य पूर्णता',        icon: Users,       color: '#16a34a', bg: '#dcfce7', border: '#bbf7d0', roleEmail: 'employee@demo.in' },
+  { href: '/parshad',  label: 'वार्ड पार्षद',   en: 'Ward Councillor',    desc: 'अपने वार्ड की सभी समस्याओं पर नजर', icon: Briefcase,   color: '#7c3aed', bg: '#f3e8ff', border: '#e9d5ff', roleEmail: 'parshad@demo.in' },
 ];
 
 const LAPTOP_PORTALS = [
-  { href: '/login?role=officer',  label: 'विभागीय अधिकारी', en: 'Dept. Officer',    desc: 'शिकायत निस्तारण व टीम प्रबंधन',   icon: Building2,   color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
-  { href: '/login?role=chairman', label: 'चेयरमैन / सभापति', en: 'Chairman Portal',   desc: 'पूरे चित्तौड़गढ़ नगर का नियंत्रण',   icon: Crown,       color: '#d97706', bg: '#fef3c7', border: '#fde68a' },
-  { href: '/login?role=admin',    label: 'सुपर एडमिन',     en: 'Super Admin',       desc: 'सिस्टम, वार्ड व यूजर कॉन्फ़िगरेशन',  icon: Shield,      color: '#dc2626', bg: '#fee2e2', border: '#fca5a5' },
+  { href: '/officer',  label: 'विभागीय अधिकारी', en: 'Dept. Officer',    desc: 'शिकायत निस्तारण व टीम प्रबंधन',   icon: Building2,   color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', roleEmail: 'officer@demo.in' },
+  { href: '/chairman', label: 'चेयरमैन / सभापति', en: 'Chairman Portal',   desc: 'पूरे चित्तौड़गढ़ नगर का नियंत्रण',   icon: Crown,       color: '#d97706', bg: '#fef3c7', border: '#fde68a', roleEmail: 'chairman@demo.in' },
+  { href: '/admin',    label: 'सुपर एडमिन',     en: 'Super Admin',       desc: 'सिस्टम, वार्ड व यूजर कॉन्फ़िगरेशन',  icon: Shield,      color: '#dc2626', bg: '#fee2e2', border: '#fca5a5', roleEmail: 'admin@demo.in' },
 ];
 
 const HIGHLIGHTS = [
@@ -30,25 +30,56 @@ const HIGHLIGHTS = [
   'अधिकारियों एवं चेयरमैन हेतु संपूर्ण डेटा नियंत्रण कक्ष',
 ];
 
+const FEATURED_TEST_ROLES = [
+  {
+    title: 'नागरिक पोर्टल (Citizen)',
+    roleName: 'Rajesh Kumar (वार्ड 24)',
+    path: '/citizen',
+    icon: UserCircle,
+    color: '#0284c7',
+    bg: '#f0f9ff',
+    border: '#bae6fd',
+    desc: 'समस्या दर्ज करें, स्थिति ट्रैक करें, समाधान फीडबैक दें।',
+    badge: '📱 मोबाइल फर्स्ट'
+  },
+  {
+    title: 'सभापति / चेयरमैन (Chairman)',
+    roleName: 'Prem Singh Ji (समस्त 60 वार्ड)',
+    path: '/chairman',
+    icon: Crown,
+    color: '#d97706',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    desc: 'समस्त 60 वार्डों की लाइव समीक्षा, विभागवार प्रदर्शन व GIS मैप।',
+    badge: '💻 नियंत्रण कक्ष'
+  },
+  {
+    title: 'विभागीय अधिकारी (Officer)',
+    roleName: 'Suresh Sharma (स्वच्छता विभाग)',
+    path: '/officer',
+    icon: Building2,
+    color: '#2563eb',
+    bg: '#eff6ff',
+    border: '#bfdbfe',
+    desc: 'आने वाली शिकायतें जांचें, कर्मचारियों को कार्य आवंटित करें।',
+    badge: '💻 प्रबंधन डेस्क'
+  },
+  {
+    title: 'वार्ड पार्षद (Parshad)',
+    roleName: 'Smt. Kamla Bai (वार्ड 24 पार्षद)',
+    path: '/parshad',
+    icon: Briefcase,
+    color: '#7c3aed',
+    bg: '#faf5ff',
+    border: '#e9d5ff',
+    desc: 'वार्ड की समस्याएं, उपस्थित सफाईकर्मी एवं प्रगति समीक्षा।',
+    badge: '📱 मोबाइल फर्स्ट'
+  },
+];
+
 export default function HomePage() {
-  const { profile, loading } = useAuth();
+  const { profile, loading, switchRole } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && profile) {
-      const paths = { citizen:'/citizen', employee:'/employee', parshad:'/parshad', officer:'/officer', chairman:'/chairman', super_admin:'/admin' };
-      if (paths[profile.role]) router.replace(paths[profile.role]);
-    }
-  }, [profile, loading]);
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner" />
-        <p style={{ color: '#64748b' }}>लोड हो रहा है... (Loading Smart Chittorgarh)</p>
-      </div>
-    );
-  }
 
   return (
     <main className="landing-hero">
@@ -115,11 +146,158 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Login CTA Button */}
-      <div style={{ marginTop: 'var(--space-6)', display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Link href="/login" className="btn btn-primary btn-lg" style={{ gap: 10, padding: '12px 28px', fontSize: '0.95rem' }}>
-          पोर्टल में लॉगिन करें (Sign In) <ArrowRight size={18} />
-        </Link>
+      {/* SIDE-BY-SIDE MULTI-ROLE TESTING HUB */}
+      <div style={{
+        maxWidth: 960,
+        width: '100%',
+        marginTop: 'var(--space-8)',
+        background: '#ffffff',
+        border: '2px solid #bfdbfe',
+        borderRadius: 16,
+        padding: '20px 18px',
+        boxShadow: '0 8px 24px rgba(30, 58, 138, 0.08)',
+        textAlign: 'left'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                padding: '4px 10px',
+                borderRadius: 999,
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                border: '1px solid #bfdbfe'
+              }}>
+                ⚡ साइड-बाय-साइड लाइव टेस्टिंग (Side-by-Side Live Testing)
+              </span>
+              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                प्रत्येक पोर्टल के लिए अलग रूट
+              </span>
+            </div>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#1e3a8a', marginTop: 4, marginBottom: 2 }}>
+              नागरिक, सभापति, अधिकारी एवं पार्षद पोर्टल सीधे टेस्ट करें
+            </h3>
+            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
+              आप अलग-अलग विंडो/टैब में इन्हें खोलकर समानांतर रूप से (Side-by-Side) परीक्षण कर सकते हैं:
+            </p>
+          </div>
+
+          <Link href="/login" style={{
+            fontSize: '0.8125rem',
+            color: '#1d4ed8',
+            fontWeight: 600,
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4
+          }}>
+            पासवर्ड लॉगिन फॉर्म <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        {/* 4 Featured Test Role Cards */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 12
+        }}>
+          {FEATURED_TEST_ROLES.map((r) => {
+            const Icon = r.icon;
+            return (
+              <div
+                key={r.path}
+                style={{
+                  background: r.bg,
+                  border: `1.5px solid ${r.border}`,
+                  borderRadius: 12,
+                  padding: '14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: 10
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                    }}>
+                      <Icon size={20} style={{ color: r.color }} />
+                    </div>
+                    <span style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      background: '#ffffff',
+                      color: r.color,
+                      border: `1px solid ${r.border}`
+                    }}>
+                      {r.badge}
+                    </span>
+                  </div>
+
+                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a', marginBottom: 2 }}>
+                    {r.title}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: r.color, fontWeight: 700, marginBottom: 4 }}>
+                    रूट: {r.path}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', lineHeight: 1.4 }}>
+                    {r.desc}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                  <Link
+                    href={r.path}
+                    className="btn btn-primary"
+                    style={{
+                      flex: 1,
+                      padding: '7px 10px',
+                      fontSize: '0.75rem',
+                      justifyContent: 'center',
+                      background: r.color,
+                      borderColor: r.color,
+                    }}
+                  >
+                    पोर्टल खोलें
+                  </Link>
+                  <a
+                    href={r.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="नई विंडो/टैब में खोलें (Open in New Tab / Side-by-Side)"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '7px 10px',
+                      background: '#ffffff',
+                      border: `1.5px solid ${r.border}`,
+                      borderRadius: 8,
+                      color: r.color,
+                      textDecoration: 'none',
+                      fontSize: '0.75rem',
+                      fontWeight: 700
+                    }}
+                  >
+                    अलग विंडो 🔗
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* SECTION 1: Mobile-First Services (Citizen, Employee, Parshad) */}
@@ -144,17 +322,34 @@ export default function HomePage() {
           {MOBILE_PORTALS.map((p) => {
             const Icon = p.icon;
             return (
-              <Link key={p.href} href={p.href} className="portal-card">
-                <div className="portal-icon" style={{ background: p.bg, border: `1.5px solid ${p.border}` }}>
-                  <Icon size={26} style={{ color: p.color }} />
+              <div key={p.href} className="portal-card" style={{ position: 'relative' }}>
+                <Link href={p.href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div className="portal-icon" style={{ background: p.bg, border: `1.5px solid ${p.border}` }}>
+                    <Icon size={26} style={{ color: p.color }} />
+                  </div>
+                  <div className="portal-label">{p.label}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>{p.en}</div>
+                  <div className="portal-desc">{p.desc}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                    <span className="portal-badge" style={{ background: p.bg, color: p.color }}>
+                      📱 मोबाइल फ्रेंडली
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: p.color, fontWeight: 700 }}>
+                      प्रवेश करें &rarr;
+                    </span>
+                  </div>
+                </Link>
+                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '0.72rem', color: '#64748b', textDecoration: 'none' }}
+                  >
+                    🔗 नई विंडो में खोलें
+                  </a>
                 </div>
-                <div className="portal-label">{p.label}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>{p.en}</div>
-                <div className="portal-desc">{p.desc}</div>
-                <span className="portal-badge" style={{ background: p.bg, color: p.color }}>
-                  📱 मोबाइल फ्रेंडली
-                </span>
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -182,17 +377,34 @@ export default function HomePage() {
           {LAPTOP_PORTALS.map((p) => {
             const Icon = p.icon;
             return (
-              <Link key={p.href} href={p.href} className="portal-card">
-                <div className="portal-icon" style={{ background: p.bg, border: `1.5px solid ${p.border}` }}>
-                  <Icon size={26} style={{ color: p.color }} />
+              <div key={p.href} className="portal-card" style={{ position: 'relative' }}>
+                <Link href={p.href} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div className="portal-icon" style={{ background: p.bg, border: `1.5px solid ${p.border}` }}>
+                    <Icon size={26} style={{ color: p.color }} />
+                  </div>
+                  <div className="portal-label">{p.label}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>{p.en}</div>
+                  <div className="portal-desc">{p.desc}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                    <span className="portal-badge" style={{ background: '#fef2f2', color: '#dc2626' }}>
+                      💻 केवल लैपटॉप / डेस्कटॉप
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: p.color, fontWeight: 700 }}>
+                      प्रवेश करें &rarr;
+                    </span>
+                  </div>
+                </Link>
+                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '0.72rem', color: '#64748b', textDecoration: 'none' }}
+                  >
+                    🔗 नई विंडो में खोलें
+                  </a>
                 </div>
-                <div className="portal-label">{p.label}</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>{p.en}</div>
-                <div className="portal-desc">{p.desc}</div>
-                <span className="portal-badge" style={{ background: '#fef2f2', color: '#dc2626' }}>
-                  💻 केवल लैपटॉप / डेस्कटॉप
-                </span>
-              </Link>
+              </div>
             );
           })}
         </div>

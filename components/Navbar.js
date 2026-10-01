@@ -14,8 +14,9 @@ const ROLE_CONFIG = {
   super_admin: { label: 'एडमिन',    badgeBg: '#fee2e2', badgeText: '#b91c1c', border: '#fca5a5' },
 };
 
-export default function Navbar() {
-  const { profile, logout } = useAuth();
+export default function Navbar({ currentProfile }) {
+  const { profile: authProfile, logout } = useAuth();
+  const profile = currentProfile || authProfile;
   const role = profile?.role;
   const cfg = ROLE_CONFIG[role] || { label: 'पोर्टल', badgeBg: '#f1f5f9', badgeText: '#334155', border: '#e2e8f0' };
 

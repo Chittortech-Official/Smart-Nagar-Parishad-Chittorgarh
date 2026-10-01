@@ -16,6 +16,7 @@ const ROLE_NAMES = {
 export default function DesktopOnlyGuard({ children, role }) {
   const { switchRole, logout } = useAuth();
   const [isMobileScreen, setIsMobileScreen] = useState(false);
+  const [bypass, setBypass] = useState(false);
   const [checked, setChecked] = useState(false);
 
   const isDesktopRole = DESKTOP_ROLES.includes(role);
@@ -36,8 +37,47 @@ export default function DesktopOnlyGuard({ children, role }) {
     return null; // Brief flash prevention
   }
 
+  // If testing in preview / side-by-side mode on narrow screens
+  if (isDesktopRole && isMobileScreen && bypass) {
+    return (
+      <>
+        <div style={{
+          background: '#eff6ff',
+          borderBottom: '1px solid #bfdbfe',
+          padding: '6px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.75rem',
+          color: '#1e40af',
+          position: 'sticky',
+          top: 0,
+          zIndex: 9999,
+        }}>
+          <span>🖥️ <strong>साइड-बाय-साइड टेस्टिंग मोड:</strong> डेस्कटॉप व्यू का पूर्वावलोकन सक्रिय है</span>
+          <button
+            onClick={() => setBypass(false)}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #bfdbfe',
+              borderRadius: 6,
+              padding: '2px 8px',
+              fontSize: '0.72rem',
+              color: '#1e40af',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            बंद करें
+          </button>
+        </div>
+        {children}
+      </>
+    );
+  }
+
   // If this role requires desktop and user is on mobile screen width:
-  if (isDesktopRole && isMobileScreen) {
+  if (isDesktopRole && isMobileScreen && !bypass) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -120,16 +160,41 @@ export default function DesktopOnlyGuard({ children, role }) {
             padding: '14px',
             fontSize: '0.8125rem',
             color: '#1e40af',
-            marginBottom: 24,
+            marginBottom: 20,
             textAlign: 'left',
             display: 'flex',
             gap: 10,
           }}>
             <ShieldAlert size={20} style={{ flexShrink: 0, marginTop: 2, color: '#2563eb' }} />
             <div>
-              <strong>सुझाव:</strong> कृपया इस पोर्टल को अपने लैपटॉप/डेस्कटॉप वेब ब्राउज़र में खोलें, अथवा मोबाइल पर नीचे दिए गए नागरिक/कर्मचारी/पार्षद पोर्टल का अनुभव लें।
+              <strong>सुझाव:</strong> यह पोर्टल लैपटॉप/डेस्कटॉप के लिए अनुकूलित है। यदि आप साइड-बाय-साइड या मोबाइल स्क्रीन पर टेस्ट कर रहे हैं, तो नीचे दिए गए बटन से पूर्वावलोकन देख सकते हैं।
             </div>
           </div>
+
+          {/* Test in Preview Button */}
+          <button
+            onClick={() => setBypass(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              width: '100%',
+              padding: '12px 16px',
+              marginBottom: 20,
+              background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 12,
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>👁️ साइड-बाय-साइड / मोबाइल पूर्वावलोकन देखें</span>
+          </button>
 
           {/* Mobile Portals Quick Links */}
           <div style={{ textAlign: 'left', marginBottom: 20 }}>
