@@ -9,68 +9,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const INITIAL_MOCK = [
-  {
-    id: 1,
-    code: 'CTNP-2026-000087',
-    category: 'कचरा / स्वच्छता (Garbage Clearance)',
-    ward: 'वार्ड 24',
-    status: 'in_progress',
-    dept: 'स्वास्थ्य एवं स्वच्छता विभाग',
-    date: '28 सितं 2026',
-    sla: '24 घंटे',
-    location: 'भारत माता चौक, मुख्य बाजार, चित्तौड़गढ़',
-    description: 'बाजार के मुख्य तिराहे पर कचरा पात्र ओवरफ्लो हो रहा है एवं आवारा पशु जमा हैं। कृपया शीघ्र उठवाया जाए।',
-    statusDetail: 'कार्य प्रगति पर है — फील्ड सफाई टीम मौके पर कचरा निष्कासन कर रही है।',
-    assignedStaff: 'रमेश मीणा (सफाई जमादार, मो: 98290-XXXXX)',
-  },
-  {
-    id: 2,
-    code: 'CTNP-2026-000065',
-    category: 'स्ट्रीट लाइट बंद (Street Light)',
-    ward: 'वार्ड 24',
-    status: 'resolved',
-    dept: 'विद्युत अनुभाग',
-    date: '20 सितं 2026',
-    sla: '48 घंटे',
-    location: 'गली संख्या 3, पोस्ट ऑफिस के पीछे, चित्तौड़गढ़',
-    description: 'पिछले तीन दिनों से खंभा संख्या 14 की एलईडी लाइट बंद है जिससे रात्रि में अंधेरा रहता है।',
-    statusDetail: 'समस्या का निस्तारण कर दिया गया है — नई एलईडी लाइट लगा दी गई है।',
-    assignedStaff: 'सुरेश कुमावत (विद्युत लाइनमैन)',
-  },
-  {
-    id: 3,
-    code: 'CTNP-2026-000041',
-    category: 'सड़क गड्ढा मरम्मत (Road Pothole)',
-    ward: 'वार्ड 24',
-    status: 'closed',
-    dept: 'निर्माण / इंजीनियरिंग शाखा',
-    date: '10 सितं 2026',
-    sla: '72 घंटे',
-    location: 'स्टेशन रोड कॉर्नर, निकट मंदिर',
-    description: 'बारिश के कारण मुख्य सड़क पर गहरा गड्ढा हो गया है, दुपहिया वाहन चालकों के गिरने का खतरा है।',
-    statusDetail: 'सड़क मरम्मत व डामरीकरण पूर्ण एवं कनिष्ठ अभियंता द्वारा सत्यापित।',
-    assignedStaff: 'विक्रम राठौड़ (सहायक अभियंता)',
-  },
-  {
-    id: 4,
-    code: 'CTNP-2026-000018',
-    category: 'पेयजल लीकेज (Water Pipeline)',
-    ward: 'वार्ड 24',
-    status: 'reopened',
-    dept: 'जल प्रदाय अनुभाग',
-    date: '01 सितं 2026',
-    sla: '24 घंटे',
-    location: 'हनुमान मंदिर के पास, वार्ड 24',
-    description: 'पेयजल पाइपलाइन में मुख्य जोड़ पर तेज रिसाव हो रहा है जिससे हजारों लीटर शुद्ध जल व्यर्थ बह रहा है।',
-    statusDetail: 'असंतोषजनक समाधान के कारण पुनः खुली — जेईएन को मौका निरीक्षण हेतु पुनः प्रेषित।',
-    assignedStaff: 'दिनेश शर्मा (जल प्रदाय प्रभारी)',
-  },
-];
+import CitizenOnboarding from '@/components/CitizenOnboarding';
+import { getStoredCitizenProfile, getCitizenComplaints } from '@/lib/citizenService';
 
 export default function CitizenComplaintsPage() {
-  const { profile } = useAuth();
-  const [complaints, setComplaints] = useState(INITIAL_MOCK);
+  const [mounted, setMounted] = useState(false);
+  const [citizen, setCitizen] = useState(null);
+  const [complaints, setComplaints] = useState([]);
   const [feedback, setFeedback] = useState({});
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -78,24 +23,16 @@ export default function CitizenComplaintsPage() {
   const [reopenNote, setReopenNote] = useState({});
   const [showReopenInput, setShowReopenInput] = useState({});
 
-  // Load any newly submitted complaints from localStorage
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('chittorgarh_citizen_complaints');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge avoiding duplicates by code
-          const existingCodes = new Set(INITIAL_MOCK.map(m => m.code));
-          const newItems = parsed.filter(p => !existingCodes.has(p.code));
-          setComplaints([...newItems, ...INITIAL_MOCK]);
-          // Default expand the first item if newly submitted
-          if (newItems.length > 0) {
-            setExpandedId(newItems[0].id);
-          }
-        }
-      }
-    } catch (_) {}
+    setMounted(true);
+    const stored = getStoredCitizenProfile();
+    if (stored) {
+      setCitizen(stored);
+      getCitizenComplaints(stored.phone).then(list => {
+        setComplaints(list);
+        if (list.length > 0) setExpandedId(list[0].id);
+      });
+    }
   }, []);
 
   function toggleExpand(id) {
@@ -153,6 +90,30 @@ export default function CitizenComplaintsPage() {
   const inProgressCount = complaints.filter(c => c.status === 'in_progress').length;
   const resolvedCount = complaints.filter(c => ['resolved', 'closed'].includes(c.status)).length;
   const reopenedCount = complaints.filter(c => c.status === 'reopened').length;
+
+  if (!mounted) {
+    return (
+      <DashboardShell requiredRole="citizen">
+        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ color: '#64748b', fontSize: '0.875rem' }}>शिकायतें लोड हो रही हैं...</div>
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (!citizen) {
+    return (
+      <DashboardShell requiredRole="citizen" hideBottomNav={true} guestMode={true} currentProfile={null}>
+        <CitizenOnboarding onComplete={newProf => {
+          setCitizen(newProf);
+          getCitizenComplaints(newProf.phone).then(list => {
+            setComplaints(list);
+            if (list.length > 0) setExpandedId(list[0].id);
+          });
+        }} />
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell requiredRole="citizen">
@@ -311,7 +272,35 @@ export default function CitizenComplaintsPage() {
         </div>
 
         {/* Complaints List */}
-        {filteredComplaints.length === 0 ? (
+        {totalCount === 0 ? (
+          <div className="card" style={{ padding: '40px 20px', textAlign: 'center', background: '#ffffff', border: '1.5px solid #e2e8f0' }}>
+            <div style={{
+              width: 56, height: 56,
+              background: '#eff6ff',
+              color: '#1d4ed8',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 12px'
+            }}>
+              <FileText size={28} />
+            </div>
+            <h3 style={{ fontSize: '1.15rem', color: '#1e3a8a', fontWeight: 800, margin: '0 0 6px' }}>
+              वर्तमान में आपकी कोई शिकायत दर्ज नहीं है
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: 440, margin: '0 auto 20px', lineHeight: 1.5 }}>
+              वार्ड संख्या {citizen.ward} में किसी भी समस्या (सफाई, नाली, सड़क, स्ट्रीट लाइट, पेयजल) के समाधान हेतु नई शिकायत दर्ज करें।
+            </p>
+            <Link
+              href="/citizen/report"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px' }}
+            >
+              <Plus size={16} /> नई नागरिक समस्या दर्ज करें
+            </Link>
+          </div>
+        ) : filteredComplaints.length === 0 ? (
           <div className="card" style={{ padding: '36px', textAlign: 'center', color: '#64748b' }}>
             <FileText size={36} color="#94a3b8" style={{ margin: '0 auto 8px' }} />
             <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>इस फ़िल्टर में कोई शिकायत नहीं मिली।</div>

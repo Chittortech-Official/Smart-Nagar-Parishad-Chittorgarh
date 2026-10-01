@@ -2,21 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
-import { useAuth } from '@/lib/authContext';
+import CitizenOnboarding from '@/components/CitizenOnboarding';
+import {
+  getStoredCitizenProfile,
+  getCitizenComplaints,
+  clearStoredCitizenProfile
+} from '@/lib/citizenService';
 import Link from 'next/link';
 import {
   FileText, ClipboardList, CheckCircle, Clock,
   Plus, ChevronRight, ArrowRight, PhoneCall,
   MapPin, Truck, UserCheck, ShieldCheck, AlertCircle,
-  HelpCircle, Sparkles, CheckCircle2
+  HelpCircle, Sparkles, CheckCircle2, User, LogOut, Phone
 } from 'lucide-react';
-
-const MOCK_COMPLAINTS = [
-  { id: 1, code: 'CTNP-2026-000087', category: 'कचरा एवं स्वच्छता', ward: 'वार्ड 24', status: 'in_progress', date: '28 सितं 2026', dept: 'स्वास्थ्य एवं स्वच्छता विभाग', location: 'भारत माता चौक, मुख्य बाजार', sla: '24 घंटे', statusDetail: 'कार्य प्रगति पर है — सफाई टीम मौके पर कार्यरत है।' },
-  { id: 2, code: 'CTNP-2026-000065', category: 'स्ट्रीट लाइट बंद',   ward: 'वार्ड 24', status: 'resolved',    date: '20 सितं 2026', dept: 'विद्युत अनुभाग', location: 'गली संख्या 3, पोस्ट ऑफिस पास', sla: '48 घंटे', statusDetail: 'स्ट्रीट लाइट मरम्मत कार्य पूर्ण।' },
-  { id: 3, code: 'CTNP-2026-000041', category: 'सड़क गड्ढा मरम्मत',  ward: 'वार्ड 24', status: 'closed',      date: '10 सितं 2026', dept: 'इंजीनियरिंग शाखा', location: 'स्टेशन रोड कॉर्नर', sla: '72 घंटे', statusDetail: 'डामरीकरण कार्य पूर्ण एवं सत्यापित।' },
-  { id: 4, code: 'CTNP-2026-000018', category: 'पेयजल लीकेज',       ward: 'वार्ड 24', status: 'reopened',    date: '01 सितं 2026', dept: 'जल प्रदाय अनुभाग', location: 'हनुमान मंदिर के पास, वार्ड 24', sla: '24 घंटे', statusDetail: 'असंतोषजनक समाधान के कारण पुनः खुली — जेईएन को मौका निरीक्षण हेतु पुनः प्रेषित।' },
-];
 
 const STATUS_CONFIG = {
   submitted:    { label: 'दर्ज',        color: '#64748b' },
@@ -51,7 +49,6 @@ function ComplaintTracker({ complaint }) {
         <span>{complaint.date}</span>
       </div>
 
-      {/* Clean Status Box (No Slider / No Graph) */}
       <div style={{
         background: '#f8fafc',
         padding: '9px 12px',
@@ -78,26 +75,50 @@ function ComplaintTracker({ complaint }) {
 }
 
 export default function CitizenPage() {
-  const { profile } = useAuth();
-  const [complaintList, setComplaintList] = useState(MOCK_COMPLAINTS);
-  // Consistent Hindi name: Never flips between English 'Rajesh' and Hindi 'राजेश कुमार'
-  const name = 'राजेश कुमार';
+  const [mounted, setMounted] = useState(false);
+  const [citizen, setCitizen] = useState(null);
+  const [complaintList, setComplaintList] = useState([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('chittorgarh_citizen_complaints');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingCodes = new Set(MOCK_COMPLAINTS.map(m => m.code));
-          const newItems = parsed.filter(p => !existingCodes.has(p.code));
-          if (newItems.length > 0) {
-            setComplaintList([...newItems, ...MOCK_COMPLAINTS]);
-          }
-        }
-      }
-    } catch (_) {}
+    setMounted(true);
+    const stored = getStoredCitizenProfile();
+    if (stored) {
+      setCitizen(stored);
+      getCitizenComplaints(stored.phone).then(list => setComplaintList(list));
+    }
   }, []);
+
+  function handleOnboardSuccess(profile) {
+    setCitizen(profile);
+    getCitizenComplaints(profile.phone).then(list => setComplaintList(list));
+  }
+
+  function handleSwitchProfile() {
+    if (confirm('क्या आप प्रोफाइल बदलना या लॉगआउट करना चाहते हैं?')) {
+      clearStoredCitizenProfile();
+      setCitizen(null);
+      setComplaintList([]);
+    }
+  }
+
+  if (!mounted) {
+    return (
+      <DashboardShell requiredRole="citizen">
+        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ color: '#64748b', fontSize: '0.875rem' }}>नागरिक पोर्टल लोड हो रहा है...</div>
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  // If no citizen profile exists, render Zero-OTP Onboarding Form
+  if (!citizen) {
+    return (
+      <DashboardShell requiredRole="citizen" hideBottomNav={true} guestMode={true} currentProfile={null}>
+        <CitizenOnboarding onComplete={handleOnboardSuccess} />
+      </DashboardShell>
+    );
+  }
 
   const total = complaintList.length;
   const inProgress = complaintList.filter(c => ['in_progress', 'submitted', 'assigned', 'reopened'].includes(c.status)).length;
@@ -118,10 +139,10 @@ export default function CitizenPage() {
               <span style={{ color: '#16a34a' }}>नागरिक ई-सेवा पोर्टल</span>
             </div>
             <h1 style={{ fontSize: '1.4rem', color: '#1e3a8a', marginTop: 4, marginBottom: 4, fontWeight: 800 }}>
-              नमस्ते, {name} जी! 👋
+              नमस्ते, {citizen.name} जी! 👋
             </h1>
             <p style={{ fontSize: '0.825rem', color: '#475569', margin: 0 }}>
-              अपने वार्ड की नागरिक समस्याएं दर्ज करें, प्रगति ट्रैक करें और पारदर्शी समाधान प्राप्त करें।
+              मोबाइल: <strong>{citizen.phone}</strong> {citizen.mohalla ? `• ${citizen.mohalla}` : ''}
             </p>
           </div>
 
@@ -139,7 +160,7 @@ export default function CitizenPage() {
               gap: 6
             }}>
               <MapPin size={14} />
-              <span>वार्ड संख्या 24 (चित्तौड़गढ़)</span>
+              <span>वार्ड संख्या {citizen.ward} (चित्तौड़गढ़)</span>
             </div>
 
             <Link
@@ -149,6 +170,16 @@ export default function CitizenPage() {
             >
               <Plus size={16} /> नई समस्या दर्ज करें
             </Link>
+
+            <button
+              type="button"
+              onClick={handleSwitchProfile}
+              className="btn btn-sm btn-outline"
+              title="प्रोफाइल बदलें"
+              style={{ padding: '6px 10px', fontSize: '0.75rem', color: '#64748b' }}
+            >
+              <LogOut size={13} /> बदलें
+            </button>
           </div>
         </div>
       </div>
@@ -173,7 +204,7 @@ export default function CitizenPage() {
         </Link>
       </div>
 
-      {/* 3. Main Action Touch Cards (Mobile First, Prominent on Mobile) */}
+      {/* 3. Main Action Touch Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <Link
           href="/citizen/report"
@@ -240,98 +271,128 @@ export default function CitizenPage() {
           </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#1e3a8a', lineHeight: 1.2 }}>मेरी शिकायतें</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 3 }}>स्थिति ट्रैक करें व फीडबैक दें ({total})</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 3 }}>स्थिति ट्रैक करें ({total})</div>
           </div>
         </Link>
       </div>
 
-      {/* 4. Responsive 2-Column Grid (Main Complaints Left + Civic Info Sidebar Right) */}
+      {/* 4. Responsive 2-Column Grid */}
       <div className="citizen-grid-layout">
-        {/* LEFT COLUMN: Live Tracker & Recent Complaints */}
+        {/* LEFT COLUMN: Live Tracker & Complaints */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Active Complaint Highlight */}
-          {activeComplaint && (
-            <div className="card" style={{ padding: '16px 18px', borderLeft: '4px solid #b45309' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Clock size={16} color="#b45309" />
-                  <span style={{ fontWeight: 700, color: '#b45309', fontSize: '0.85rem' }}>वर्तमान में सक्रिय समस्या (Active Issue)</span>
-                </div>
-                <span className="complaint-code">{activeComplaint.code}</span>
-              </div>
-
-              <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#1e3a8a', marginBottom: 4 }}>
-                {activeComplaint.category}
-              </div>
-              <p style={{ fontSize: '0.78rem', color: '#475569', margin: '0 0 12px 0' }}>
-                स्थान: {activeComplaint.location || 'वार्ड 24'} • {activeComplaint.dept}
-              </p>
-
-              {/* Clean Status Info (No Slider / No Graph) */}
+          {total === 0 ? (
+            /* Clean Civic Empty State */
+            <div className="card" style={{ padding: '36px 20px', textAlign: 'center' }}>
               <div style={{
-                background: '#fffbeb',
-                padding: '12px 14px',
-                borderRadius: 10,
-                border: '1px solid #fef3c7',
+                width: 60, height: 60,
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: 8,
+                justifyContent: 'center',
+                margin: '0 auto 14px'
               }}>
-                <div>
-                  <span style={{ fontWeight: 700, color: '#b45309', marginRight: 6 }}>वर्तमान स्थिति:</span>
-                  <span style={{ fontSize: '0.825rem', color: '#78350f', fontWeight: 600 }}>
-                    {activeComplaint.statusDetail || 'कार्य प्रगति पर है।'}
-                  </span>
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 700 }}>
-                  अनुमानित समय: {activeComplaint.sla || '24 घंटे'}
-                </span>
+                <CheckCircle2 size={32} />
               </div>
-            </div>
-          )}
-
-          {/* Recent Complaints List */}
-          <div className="card" style={{ padding: '16px 18px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f1f5f9', gap: 10 }}>
-              <div>
-                <h3 style={{ fontSize: '0.96rem', color: '#1e3a8a', margin: 0, fontWeight: 800 }}>हालिया शिकायतें</h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>वार्ड 24 में आपकी दर्ज समस्याएं</span>
-              </div>
+              <h3 style={{ fontSize: '1.15rem', color: '#1e3a8a', fontWeight: 800, margin: '0 0 6px' }}>
+                वर्तमान में आपकी कोई शिकायत दर्ज नहीं है
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', maxWidth: 440, margin: '0 auto 20px', lineHeight: 1.5 }}>
+                वार्ड संख्या {citizen.ward} में सफाई, स्ट्रीट लाइट, सड़क, पेयजल अथवा किसी भी नगरपालिका समस्या के समाधान हेतु पहली शिकायत दर्ज करें।
+              </p>
               <Link
-                href="/citizen/complaints"
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#1d4ed8',
-                  background: '#eff6ff',
-                  border: '1px solid #bfdbfe',
-                  padding: '5px 12px',
-                  borderRadius: 6,
-                  textDecoration: 'none',
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4
-                }}
+                href="/citizen/report"
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', fontSize: '0.9rem' }}
               >
-                <span>सभी {total} देखें</span>
-                <span>&rarr;</span>
+                <Plus size={18} /> पहली नागरिक समस्या दर्ज करें
               </Link>
             </div>
-            {complaintList.slice(0, 3).map(c => <ComplaintTracker key={c.id} complaint={c} />)}
-          </div>
+          ) : (
+            <>
+              {activeComplaint && (
+                <div className="card" style={{ padding: '16px 18px', borderLeft: '4px solid #b45309' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Clock size={16} color="#b45309" />
+                      <span style={{ fontWeight: 700, color: '#b45309', fontSize: '0.85rem' }}>सक्रिय समस्या (Active Issue)</span>
+                    </div>
+                    <span className="complaint-code">{activeComplaint.code}</span>
+                  </div>
+
+                  <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#1e3a8a', marginBottom: 4 }}>
+                    {activeComplaint.category}
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: '#475569', margin: '0 0 12px 0' }}>
+                    स्थान: {activeComplaint.location || `वार्ड ${citizen.ward}`} • {activeComplaint.dept}
+                  </p>
+
+                  <div style={{
+                    background: '#fffbeb',
+                    padding: '12px 14px',
+                    borderRadius: 10,
+                    border: '1px solid #fef3c7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 8,
+                  }}>
+                    <div>
+                      <span style={{ fontWeight: 700, color: '#b45309', marginRight: 6 }}>स्थिति:</span>
+                      <span style={{ fontSize: '0.825rem', color: '#78350f', fontWeight: 600 }}>
+                        {activeComplaint.statusDetail || 'प्रक्रियाधीन'}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 700 }}>
+                      समय: {activeComplaint.sla || '24-48 घंटे'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Complaints List */}
+              <div className="card" style={{ padding: '16px 18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f1f5f9', gap: 10 }}>
+                  <div>
+                    <h3 style={{ fontSize: '0.96rem', color: '#1e3a8a', margin: 0, fontWeight: 800 }}>आपकी दर्ज शिकायतें</h3>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>वार्ड संख्या {citizen.ward}</span>
+                  </div>
+                  <Link
+                    href="/citizen/complaints"
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      color: '#1d4ed8',
+                      background: '#eff6ff',
+                      border: '1px solid #bfdbfe',
+                      padding: '5px 12px',
+                      borderRadius: 6,
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4
+                    }}
+                  >
+                    <span>सभी {total} देखें</span>
+                    <span>&rarr;</span>
+                  </Link>
+                </div>
+                {complaintList.slice(0, 3).map(c => <ComplaintTracker key={c.id} complaint={c} />)}
+              </div>
+            </>
+          )}
         </div>
 
-        {/* RIGHT COLUMN (Desktop Sidebar & Mobile Civic Desk) */}
+        {/* RIGHT COLUMN (Civic Desk) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Ward 24 Local Representatives Card */}
+          {/* Ward Local Representatives Card */}
           <div className="card" style={{ padding: '16px 18px', background: '#fcfcfd' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid #f1f5f9' }}>
               <MapPin size={18} color="#7c3aed" />
               <h3 style={{ fontSize: '0.92rem', color: '#1e3a8a', margin: 0, fontWeight: 700 }}>
-                वार्ड 24 स्थानीय सेवा केंद्र
+                वार्ड {citizen.ward} स्थानीय सेवा केंद्र
               </h3>
             </div>
 
@@ -339,7 +400,9 @@ export default function CitizenPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड पार्षद</div>
-                  <strong style={{ color: '#0f172a' }}>श्रीमती कमला बाई</strong>
+                  <strong style={{ color: '#0f172a' }}>
+                    {citizen.ward === '24' ? 'श्रीमती कमला बाई' : `पार्षद प्रतिनिधि (वार्ड ${citizen.ward})`}
+                  </strong>
                 </div>
                 <span style={{ fontSize: '0.72rem', background: '#f3e8ff', color: '#7c3aed', padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>
                   पार्षद
@@ -348,21 +411,11 @@ export default function CitizenPage() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड स्वच्छता कर्मचारी / बीट प्रभारी</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड स्वच्छता बीट प्रभारी</div>
                   <strong style={{ color: '#0f172a' }}>रमेश मीणा</strong>
                 </div>
                 <span style={{ fontSize: '0.72rem', background: '#dcfce7', color: '#15803d', padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>
-                  कर्मचारी
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>सफाई बीट कर्मी</div>
-                  <strong style={{ color: '#0f172a' }}>रमेश मीणा</strong>
-                </div>
-                <span style={{ fontSize: '0.72rem', background: '#dcfce7', color: '#15803d', padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>
-                  आज उपस्थित ✓
+                  उपस्थित ✓
                 </span>
               </div>
             </div>
@@ -375,8 +428,8 @@ export default function CitizenPage() {
               <strong style={{ fontSize: '0.875rem', color: '#166534' }}>कचरा संग्रहण वाहन (Door-to-Door)</strong>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#15803d', lineHeight: 1.4 }}>
-              वाहन: <strong>RJ-09-GC-1024</strong><br />
-              स्थिति: <span style={{ fontWeight: 700 }}>वार्ड 24 में भ्रमण पूर्ण (प्रातः 8:30 बजे)</span> ✅
+              वाहन: <strong>RJ-09-GC-{String(1000 + Number(citizen.ward || 24))}</strong><br />
+              स्थिति: <span style={{ fontWeight: 700 }}>वार्ड {citizen.ward} में भ्रमण पूर्ण (प्रातः 8:30 बजे)</span> ✅
             </div>
           </div>
 

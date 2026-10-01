@@ -7,16 +7,11 @@ import {
   LayoutDashboard, FileText, MapPin, Users,
   Bell, ChevronRight, Building2,
   ClipboardList, Map, Shield,
-  Tag, UserCog, LogOut, CheckCircle2
+  Tag, UserCog, LogOut, CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 
 const NAV = {
-  router: [
-    { href: '/router',              label: 'शिकायत रूटिंग कंसोल', sub: 'Routing Console', icon: LayoutDashboard },
-  ],
-  officer: [
-    { href: '/router',              label: 'शिकायत रूटिंग कंसोल', sub: 'Routing Console', icon: LayoutDashboard },
-  ],
   chairman: [
     { href: '/chairman',            label: 'नगर परिषद डैशबोर्ड', sub: 'City Overview', icon: LayoutDashboard },
     { href: '/chairman/wards',      label: 'समस्त 60 वार्ड',     sub: 'All Wards',     icon: MapPin },
@@ -26,8 +21,6 @@ const NAV = {
 };
 
 const ROLE_METAS = {
-  router:   { title: 'कंट्रोल रूम राउटर', sub: 'शिकायत प्रेषण व रूटिंग कंसोल', color: '#b45309', bg: '#fef3c7' },
-  officer:  { title: 'कंट्रोल रूम राउटर', sub: 'शिकायत प्रेषण व रूटिंग कंसोल', color: '#b45309', bg: '#fef3c7' },
   chairman: { title: 'सभापति (चेयरमैन)', sub: 'सर्वोच्च प्रशासनिक नियंत्रण · चित्तौड़गढ़', color: '#b45309', bg: '#fef3c7' },
 };
 
@@ -68,6 +61,19 @@ export default function Sidebar({ currentProfile }) {
                 <div style={{ fontSize: '0.875rem', fontWeight: isActive ? 600 : 500 }}>{item.label}</div>
                 <div style={{ fontSize: '0.6875rem', color: '#64748b' }}>{item.sub}</div>
               </div>
+              {item.badge && (
+                <span style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  padding: '1px 7px',
+                  borderRadius: 9999,
+                  background: item.badgeBg || '#eff6ff',
+                  color: item.badgeColor || '#1d4ed8',
+                  border: `1px solid ${item.badgeColor || '#1d4ed8'}30`,
+                }}>
+                  {item.badge}
+                </span>
+              )}
               {isActive && <ChevronRight size={15} color="#1d4ed8" />}
             </Link>
           );

@@ -12,17 +12,16 @@ const ROLE_CONFIG = {
   employee:    { label: 'कर्मचारी', badgeBg: '#dcfce7', badgeText: '#15803d', border: '#bbf7d0' },
   parshad:     { label: 'पार्षद',   badgeBg: '#f3e8ff', badgeText: '#7e22ce', border: '#e9d5ff' },
   chairman:    { label: 'सभापति (चेयरमैन)', badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
-  router:      { label: 'कंट्रोल रूम राउटर', badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
 };
 
-export default function Navbar({ currentProfile }) {
+export default function Navbar({ currentProfile, guestMode = false }) {
   const [mounted, setMounted] = useState(false);
   const { profile: authProfile, logout } = useAuth();
 
   useEffect(() => {
     setMounted(true);
   }, []);
-  const profile = currentProfile || authProfile;
+  const profile = guestMode ? null : (currentProfile !== undefined ? currentProfile : authProfile);
   const role = profile?.role;
   const pathname = usePathname();
   const cfg = ROLE_CONFIG[role] || { label: 'पोर्टल', badgeBg: '#f1f5f9', badgeText: '#334155', border: '#e2e8f0' };
@@ -77,7 +76,7 @@ export default function Navbar({ currentProfile }) {
         </div>
 
         <div className="navbar-right">
-          {profile && (
+          {profile ? (
             <div className="navbar-user-block">
               {/* Role Badge */}
               <div
@@ -109,6 +108,26 @@ export default function Navbar({ currentProfile }) {
                 <LogOut size={15} />
                 <span>लॉगआउट</span>
               </button>
+            </div>
+          ) : (
+            <div className="navbar-user-block">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  padding: '5px 12px',
+                  borderRadius: 9999,
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: '#1e3a8a',
+                }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
+                <span>नागरिक ई-सेवा केंद्र</span>
+              </div>
             </div>
           )}
         </div>

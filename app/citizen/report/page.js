@@ -4,12 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardShell from '@/components/DashboardShell';
+import { addCitizenComplaint, getStoredCitizenProfile } from '@/lib/citizenService';
 import { useAuth } from '@/lib/authContext';
 import {
   Camera, MapPin, Send, AlertCircle, Trash2,
   Waves, Construction, Zap, TreePine, PawPrint,
   HelpCircle, Droplets, Building, ChevronLeft, CheckCircle
 } from 'lucide-react';
+import CitizenOnboarding from '@/components/CitizenOnboarding';
 
 const CATEGORIES = [
   { id: 1, name: 'कचरा / सफाई',       en: 'Garbage / Cleanliness', icon: Trash2,       color: '#16a34a', dept: 'स्वास्थ्य एवं स्वच्छता शाखा', time: '24 घंटे' },
@@ -41,6 +43,18 @@ export default function ReportPage() {
   const [address, setAddress]   = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [complaint, setComplaint] = useState(null);
+
+  const [mounted, setMounted] = useState(false);
+  const [citizen, setCitizen] = useState(null);
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = getStoredCitizenProfile();
+    if (stored) {
+      setCitizen(stored);
+      if (stored.ward) setWard(String(stored.ward));
+    }
+  }, []);
 
   // Automatically scroll to the top whenever moving between form steps or to the success screen
   useEffect(() => {
@@ -83,27 +97,24 @@ export default function ReportPage() {
   async function handleSubmit() {
     if (!selectedCategory || !ward) return;
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 1000));
-    const seq = Math.floor(Math.random() * 900) + 100;
-    const generatedCode = `CTNP-2026-${String(seq).padStart(6,'0')}`;
+    await new Promise(r => setTimeout(r, 600));
+    const seq = Math.floor(Math.random() * 900000) + 100000;
+    const generatedCode = `CTNP-2026-${String(seq)}`;
     const newEntry = {
-      id: Date.now(),
       code: generatedCode,
       category: `${selectedCategory.name} (${selectedCategory.en})`,
-      ward: `वार्ड ${ward}`,
+      ward: ward,
       dept: selectedCategory.dept,
       status: 'submitted',
-      date: new Date().toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
       sla: selectedCategory.time,
       statusDetail: 'शिकायत दर्ज — संबंधित शाखा को कार्य आवंटन प्रक्रियाधीन है।',
       description: description || 'नागरिक द्वारा प्रस्तुत वार्ड समस्या का विवरण।',
       location: address || `वार्ड नं. ${ward}, चित्तौड़गढ़`,
-      photo: photoPreview || null,
+      photo: !!photoPreview,
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem('chittorgarh_citizen_complaints') || '[]');
-      localStorage.setItem('chittorgarh_citizen_complaints', JSON.stringify([newEntry, ...existing]));
+      await addCitizenComplaint(newEntry);
     } catch (_) {}
 
     setComplaint({
@@ -163,6 +174,17 @@ export default function ReportPage() {
             </button>
           </div>
         </div>
+      </DashboardShell>
+    );
+  }
+
+  if (mounted && !citizen) {
+    return (
+      <DashboardShell requiredRole="citizen" hideBottomNav={true} guestMode={true} currentProfile={null}>
+        <CitizenOnboarding onComplete={newProf => {
+          setCitizen(newProf);
+          if (newProf.ward) setWard(String(newProf.ward));
+        }} />
       </DashboardShell>
     );
   }

@@ -75,8 +75,8 @@
   --text-light:     #94a3b8; /* Slate 400 */
 
   /* Typography */
-  --font-body:    'Inter', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-heading: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+  --font-body:    var(--font-devanagari), 'Noto Sans Devanagari', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: var(--font-devanagari), 'Noto Sans Devanagari', 'Poppins', sans-serif;
 
   /* Spacing Scale */
   --space-1:  4px;
@@ -1517,4 +1517,182 @@ tbody tr:last-child td {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-xl);
+}
+
+/* ── Devanagari Hindi Text & Input Matra Protection ────────── */
+input, select, textarea, button {
+  font-family: var(--font-body);
+}
+
+.devanagari-input,
+.devanagari-select {
+  font-family: var(--font-devanagari), 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 0.9rem !important;
+  line-height: normal !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 8px 12px 8px 38px !important;
+  border-radius: 9px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  overflow: visible !important;
+  transition: all 0.2s ease !important;
+}
+
+.devanagari-input:focus,
+.devanagari-select:focus {
+  border-color: #2563eb !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14) !important;
+}
+
+.devanagari-input::placeholder {
+  color: #94a3b8 !important;
+  font-family: var(--font-devanagari), 'Noto Sans Devanagari', sans-serif !important;
+  font-size: 0.86rem !important;
+  line-height: normal !important;
+  opacity: 1 !important;
+}
+
+/* ── Guest App Main & Container (Strict Non-Scrollable Full Split on Desktop) ─── */
+.guest-app-main {
+  background-color: #f8fafc;
+  flex: 1;
+  height: calc(100vh - 95px) !important;
+  max-height: calc(100vh - 95px) !important;
+  margin-top: 95px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-left: 0 !important;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+@media (max-width: 959px) {
+  .guest-app-main {
+    height: auto !important;
+    max-height: none !important;
+    min-height: calc(100vh - 64px) !important;
+    margin-top: 64px !important;
+    padding-bottom: 24px !important;
+    overflow-y: auto !important;
+  }
+}
+
+.guest-full-container {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 959px) {
+  .guest-full-container {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* ── Citizen Onboarding True Full-Screen Split Layout ─────────── */
+.onboarding-screen-wrapper {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 959px) {
+  .onboarding-screen-wrapper {
+    height: auto;
+    overflow-y: visible;
+  }
+}
+
+/* Desktop layout: True 50-50 Split Screen with Middle Partition - NON-SCROLLABLE */
+@media (min-width: 960px) {
+  .onboarding-split-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .onboarding-showcase-panel {
+    display: flex !important;
+    flex: 1.15 !important;
+    flex-direction: column !important;
+    justify-content: space-evenly !important;
+    background: linear-gradient(150deg, #ffffff 0%, #f8fafc 45%, #eff6ff 100%) !important;
+    padding: clamp(14px, 2.5vh, 32px) clamp(24px, 3.5vw, 56px) !important;
+    border-right: 1.5px solid #e2e8f0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .onboarding-form-column {
+    display: flex !important;
+    flex: 0.85 !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #f8fafc !important;
+    padding: clamp(12px, 2vh, 24px) clamp(16px, 3vw, 44px) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .onboarding-card-box {
+    width: 100% !important;
+    max-width: 440px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Mobile & Tablet layout: Clean focused single-column */
+@media (max-width: 959px) {
+  .onboarding-split-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 20px 14px 40px !important;
+    box-sizing: border-box !important;
+  }
+
+  .onboarding-showcase-panel {
+    display: none !important;
+  }
+
+  .onboarding-form-column {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .onboarding-card-box {
+    width: 100% !important;
+    max-width: 420px !important;
+  }
 }
