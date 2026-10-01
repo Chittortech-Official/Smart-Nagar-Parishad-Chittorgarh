@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 
 const NAV = {
+  router: [
+    { href: '/router',              label: 'शिकायत रूटिंग कंसोल', sub: 'Routing Console', icon: LayoutDashboard },
+  ],
   officer: [
-    { href: '/officer',             label: 'विभागीय मुख्य पृष्ठ', sub: 'Overview',      icon: LayoutDashboard },
-    { href: '/officer/complaints',  label: 'शिकायत प्रबंधन',      sub: 'Complaints',    icon: ClipboardList },
-    { href: '/officer/employees',   label: 'कर्मचारी व कार्य',   sub: 'Staff & Tasks', icon: Users },
+    { href: '/router',              label: 'शिकायत रूटिंग कंसोल', sub: 'Routing Console', icon: LayoutDashboard },
   ],
   chairman: [
     { href: '/chairman',            label: 'नगर परिषद डैशबोर्ड', sub: 'City Overview', icon: LayoutDashboard },
@@ -25,7 +26,8 @@ const NAV = {
 };
 
 const ROLE_METAS = {
-  officer:  { title: 'विभागीय अधिकारी', sub: 'Officer Portal', color: '#1d4ed8', bg: '#eff6ff' },
+  router:   { title: 'कंट्रोल रूम राउटर', sub: 'शिकायत प्रेषण व रूटिंग कंसोल', color: '#b45309', bg: '#fef3c7' },
+  officer:  { title: 'कंट्रोल रूम राउटर', sub: 'शिकायत प्रेषण व रूटिंग कंसोल', color: '#b45309', bg: '#fef3c7' },
   chairman: { title: 'सभापति (चेयरमैन)', sub: 'सर्वोच्च प्रशासनिक नियंत्रण · चित्तौड़गढ़', color: '#b45309', bg: '#fef3c7' },
 };
 

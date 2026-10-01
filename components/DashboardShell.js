@@ -9,7 +9,7 @@ import MobileBottomNav from './MobileBottomNav';
 import DesktopOnlyGuard from './DesktopOnlyGuard';
 
 // Roles that are strictly laptop/desktop only
-const DESKTOP_ROLES = ['chairman', 'officer'];
+const DESKTOP_ROLES = ['chairman', 'officer', 'router'];
 
 // Roles that are mobile-first
 const MOBILE_ROLES = ['citizen', 'employee', 'parshad'];

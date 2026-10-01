@@ -12,6 +12,7 @@ const ROLE_CONFIG = {
   employee:    { label: 'कर्मचारी', badgeBg: '#dcfce7', badgeText: '#15803d', border: '#bbf7d0' },
   parshad:     { label: 'पार्षद',   badgeBg: '#f3e8ff', badgeText: '#7e22ce', border: '#e9d5ff' },
   chairman:    { label: 'सभापति (चेयरमैन)', badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
+  router:      { label: 'कंट्रोल रूम राउटर', badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
 };
 
 export default function Navbar({ currentProfile }) {
