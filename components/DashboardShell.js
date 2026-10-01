@@ -24,11 +24,15 @@ export default function DashboardShell({ children, requiredRole, allowedRoles })
     : (requiredRole && ROLE_DEMO_USERS[requiredRole] ? ROLE_DEMO_USERS[requiredRole] : profile || ROLE_DEMO_USERS.citizen);
 
   useEffect(() => {
-    // If testing in demo mode and visiting a specific role route, synchronize session if needed
+    // Silently synchronize demo session in localStorage without router.push reload loops
     if (requiredRole && ROLE_DEMO_USERS[requiredRole]) {
-      if (!profile || profile.role !== requiredRole) {
-        switchRole(ROLE_DEMO_USERS[requiredRole].email);
-      }
+      try {
+        const stored = localStorage.getItem('sc_demo_session');
+        const parsed = stored ? JSON.parse(stored) : null;
+        if (!parsed || parsed.role !== requiredRole) {
+          localStorage.setItem('sc_demo_session', JSON.stringify(ROLE_DEMO_USERS[requiredRole]));
+        }
+      } catch (_) {}
     }
   }, [requiredRole]);
 

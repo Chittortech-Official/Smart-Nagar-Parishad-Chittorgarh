@@ -15,8 +15,8 @@ const MOBILE_NAV_CONFIG = {
     { href: '/citizen/complaints', label: 'मेरी शिकायतें', sub: 'Complaints',  icon: ClipboardList },
   ],
   employee: [
-    { href: '/employee',         label: 'हाजिरी व कार्य', sub: 'Attendance', icon: UserCheck },
-    { href: '/employee/history', label: 'इतिहास',        sub: 'History',    icon: ClipboardList },
+    { href: '/employee',         label: 'दैनिक हाजिरी', sub: 'Attendance', icon: UserCheck },
+    { href: '/employee/history', label: 'हाजिरी इतिहास', sub: 'History',    icon: ClipboardList },
   ],
   parshad: [
     { href: '/parshad',            label: 'वार्ड स्थिति', sub: 'Overview',   icon: Home },

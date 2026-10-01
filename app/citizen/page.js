@@ -15,6 +15,7 @@ const MOCK_COMPLAINTS = [
   { id: 1, code: 'CTNP-2026-000087', category: 'कचरा एवं स्वच्छता', ward: 'वार्ड 24', status: 'in_progress', date: '28 सितं 2026', dept: 'स्वास्थ्य एवं स्वच्छता विभाग', location: 'भारत माता चौक, मुख्य बाजार', sla: '24 घंटे', statusDetail: 'कार्य प्रगति पर है — सफाई टीम मौके पर कार्यरत है।' },
   { id: 2, code: 'CTNP-2026-000065', category: 'स्ट्रीट लाइट बंद',   ward: 'वार्ड 24', status: 'resolved',    date: '20 सितं 2026', dept: 'विद्युत अनुभाग', location: 'गली संख्या 3, पोस्ट ऑफिस पास', sla: '48 घंटे', statusDetail: 'स्ट्रीट लाइट मरम्मत कार्य पूर्ण।' },
   { id: 3, code: 'CTNP-2026-000041', category: 'सड़क गड्ढा मरम्मत',  ward: 'वार्ड 24', status: 'closed',      date: '10 सितं 2026', dept: 'इंजीनियरिंग शाखा', location: 'स्टेशन रोड कॉर्नर', sla: '72 घंटे', statusDetail: 'डामरीकरण कार्य पूर्ण एवं सत्यापित।' },
+  { id: 4, code: 'CTNP-2026-000018', category: 'पेयजल लीकेज',       ward: 'वार्ड 24', status: 'reopened',    date: '01 सितं 2026', dept: 'जल प्रदाय अनुभाग', location: 'हनुमान मंदिर के पास, वार्ड 24', sla: '24 घंटे', statusDetail: 'असंतोषजनक समाधान के कारण पुनः खुली — जेईएन को मौका निरीक्षण हेतु पुनः प्रेषित।' },
 ];
 
 const STATUS_CONFIG = {
@@ -79,7 +80,8 @@ function ComplaintTracker({ complaint }) {
 export default function CitizenPage() {
   const { profile } = useAuth();
   const [complaintList, setComplaintList] = useState(MOCK_COMPLAINTS);
-  const name = profile?.full_name?.split(' ')[0] || 'राजेश कुमार';
+  // Consistent Hindi name: Never flips between English 'Rajesh' and Hindi 'राजेश कुमार'
+  const name = 'राजेश कुमार';
 
   useEffect(() => {
     try {
@@ -89,7 +91,9 @@ export default function CitizenPage() {
         if (Array.isArray(parsed) && parsed.length > 0) {
           const existingCodes = new Set(MOCK_COMPLAINTS.map(m => m.code));
           const newItems = parsed.filter(p => !existingCodes.has(p.code));
-          setComplaintList([...newItems, ...MOCK_COMPLAINTS]);
+          if (newItems.length > 0) {
+            setComplaintList([...newItems, ...MOCK_COMPLAINTS]);
+          }
         }
       }
     } catch (_) {}
@@ -98,6 +102,7 @@ export default function CitizenPage() {
   const total = complaintList.length;
   const inProgress = complaintList.filter(c => ['in_progress', 'submitted', 'assigned', 'reopened'].includes(c.status)).length;
   const resolved = complaintList.filter(c => ['resolved', 'closed'].includes(c.status)).length;
+  const reopened = complaintList.filter(c => c.status === 'reopened').length;
 
   const activeComplaint = complaintList.find(c => ['in_progress', 'submitted', 'assigned', 'reopened'].includes(c.status)) || complaintList[0];
 
@@ -156,16 +161,16 @@ export default function CitizenPage() {
         </Link>
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #d97706', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
           <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{inProgress}</div>
-          <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>प्रगति पर</div>
+          <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>खुली / लंबित</div>
         </Link>
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #16a34a', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
           <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{resolved}</div>
           <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>निस्तारित</div>
         </Link>
-        <div className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #0284c7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0284c7', lineHeight: 1 }}>24h</div>
-          <div style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700, marginTop: 4 }}>औसत समय</div>
-        </div>
+        <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #dc2626', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{reopened}</div>
+          <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 700, marginTop: 4 }}>पुनः खुली</div>
+        </Link>
       </div>
 
       {/* 3. Main Action Touch Cards (Mobile First, Prominent on Mobile) */}

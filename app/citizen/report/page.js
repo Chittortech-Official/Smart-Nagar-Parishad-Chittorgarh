@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardShell from '@/components/DashboardShell';
@@ -41,6 +41,13 @@ export default function ReportPage() {
   const [address, setAddress]   = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [complaint, setComplaint] = useState(null);
+
+  // Automatically scroll to the top whenever moving between form steps or to the success screen
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+  }, [step]);
 
   function handlePhoto(e) {
     const f = e.target.files[0];

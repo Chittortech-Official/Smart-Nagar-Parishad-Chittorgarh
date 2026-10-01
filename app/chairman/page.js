@@ -35,15 +35,21 @@ const CATEGORY_PIE = [
   { name: 'अन्य समस्याएं', value: 10, color: '#64748b' },
 ];
 
-const WARDS_SAMPLE = Array.from({ length: 60 }, (_, i) => ({
-  num: i + 1,
-  name: `वार्ड संख्या ${i + 1}`,
-  total: Math.floor(Math.random() * 15) + 3,
-  resolved: Math.floor(Math.random() * 10) + 1,
-  employees: Math.floor(Math.random() * 6) + 3,
-  present: Math.floor(Math.random() * 5) + 2,
-  overdue: (i === 7 || i === 14 || i === 31 || i === 44) ? 1 : 0,
-}));
+const WARDS_SAMPLE = Array.from({ length: 60 }, (_, i) => {
+  const baseTotal = ((i * 7 + 11) % 13) + 4;
+  const baseResolved = Math.min(baseTotal - 1, Math.max(1, ((i * 5 + 3) % 9) + 2));
+  const empTotal = ((i * 3 + 2) % 4) + 4;
+  const empPresent = Math.max(empTotal - 1, empTotal - (i % 5 === 0 ? 1 : 0));
+  return {
+    num: i + 1,
+    name: `वार्ड संख्या ${i + 1}`,
+    total: baseTotal,
+    resolved: baseResolved,
+    employees: empTotal,
+    present: empPresent,
+    overdue: (i === 7 || i === 14 || i === 31 || i === 44) ? 1 : 0,
+  };
+});
 
 const OVERDUE_COMPLAINTS = [
   { id: 1, code: 'CTNP-2026-000072', category: 'कचरा डिपो उठाव', ward: 8,  dept: 'स्वास्थ्य एवं स्वच्छता', hoursOverdue: 36, officer: 'सुरेश शर्मा' },

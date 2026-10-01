@@ -5,16 +5,22 @@ import DashboardShell from '@/components/DashboardShell';
 import { MapPin, ArrowLeft, Users, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
-const WARDS_DATA = Array.from({ length: 60 }, (_, i) => ({
-  num: i + 1,
-  name: `वार्ड संख्या ${i + 1}`,
-  councillor: `पार्षद प्रतिनिधि वार्ड ${i + 1}`,
-  total: Math.floor(Math.random() * 20) + 5,
-  resolved: Math.floor(Math.random() * 15) + 2,
-  employees: Math.floor(Math.random() * 6) + 3,
-  present: Math.floor(Math.random() * 5) + 2,
-  overdue: (i === 7 || i === 14 || i === 31 || i === 44) ? 1 : 0,
-}));
+const WARDS_DATA = Array.from({ length: 60 }, (_, i) => {
+  const baseTotal = ((i * 7 + 11) % 15) + 5;
+  const baseResolved = Math.min(baseTotal - 1, Math.max(1, ((i * 5 + 3) % 11) + 2));
+  const empTotal = ((i * 3 + 2) % 4) + 4;
+  const empPresent = Math.max(empTotal - 1, empTotal - (i % 5 === 0 ? 1 : 0));
+  return {
+    num: i + 1,
+    name: `वार्ड संख्या ${i + 1}`,
+    councillor: `पार्षद प्रतिनिधि वार्ड ${i + 1}`,
+    total: baseTotal,
+    resolved: baseResolved,
+    employees: empTotal,
+    present: empPresent,
+    overdue: (i === 7 || i === 14 || i === 31 || i === 44) ? 1 : 0,
+  };
+});
 
 export default function ChairmanWardsPage() {
   const [selectedWard, setSelectedWard] = useState(null);

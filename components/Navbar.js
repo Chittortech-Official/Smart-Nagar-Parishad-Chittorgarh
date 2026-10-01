@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
@@ -14,7 +15,12 @@ const ROLE_CONFIG = {
 };
 
 export default function Navbar({ currentProfile }) {
+  const [mounted, setMounted] = useState(false);
   const { profile: authProfile, logout } = useAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const profile = currentProfile || authProfile;
   const role = profile?.role;
   const pathname = usePathname();
@@ -85,11 +91,13 @@ export default function Navbar({ currentProfile }) {
                 <span>{cfg.label}</span>
               </div>
 
-              {/* User Name (Desktop) */}
-              <div className="navbar-user-details hide-mobile">
-                <span className="navbar-user-name">{profile.full_name}</span>
-                {profile.ward_id && <span className="navbar-user-sub">वार्ड नं. {profile.ward_id.replace('ward-', '')}</span>}
-              </div>
+              {/* User Name (Desktop) - rendered client-side after mount to prevent hydration mismatch */}
+              {mounted && (
+                <div className="navbar-user-details hide-mobile">
+                  <span className="navbar-user-name">{profile.full_name}</span>
+                  {profile.ward_id && <span className="navbar-user-sub">वार्ड नं. {profile.ward_id.replace('ward-', '')}</span>}
+                </div>
+              )}
 
               {/* Logout Button (Desktop only, mobile has it in bottom nav) */}
               <button
