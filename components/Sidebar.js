@@ -20,20 +20,13 @@ const NAV = {
     { href: '/chairman',            label: 'नगर परिषद डैशबोर्ड', sub: 'City Overview', icon: LayoutDashboard },
     { href: '/chairman/wards',      label: 'समस्त 60 वार्ड',     sub: 'All Wards',     icon: MapPin },
     { href: '/chairman/departments',label: 'नगरपालिका विभाग',   sub: 'Departments',   icon: Building2 },
-  ],
-  super_admin: [
-    { href: '/admin',               label: 'सिस्टम ओवरव्यू',     sub: 'Overview',      icon: LayoutDashboard },
-    { href: '/admin/wards',         label: 'वार्ड प्रबंधन',      sub: 'Wards',         icon: MapPin },
-    { href: '/admin/departments',   label: 'विभाग प्रबंधन',      sub: 'Departments',   icon: Building2 },
-    { href: '/admin/categories',    label: 'शिकायत श्रेणियां',   sub: 'Categories',    icon: Tag },
-    { href: '/admin/users',         label: 'उपयोगकर्ता सूची',    sub: 'Users & Roles', icon: UserCog },
+    { href: '/chairman/map',        label: 'लाइव GIS मैप',       sub: 'City GIS Map',  icon: Map },
   ],
 };
 
 const ROLE_METAS = {
-  officer:     { title: 'विभागीय अधिकारी', sub: 'Officer Portal', color: '#1d4ed8', bg: '#eff6ff' },
-  chairman:    { title: 'सभापति / चेयरमैन', sub: 'Chittorgarh MC', color: '#b45309', bg: '#fef3c7' },
-  super_admin: { title: 'सुपर एडमिन',     sub: 'System Master',  color: '#b91c1c', bg: '#fee2e2' },
+  officer:  { title: 'विभागीय अधिकारी', sub: 'Officer Portal', color: '#1d4ed8', bg: '#eff6ff' },
+  chairman: { title: 'सभापति (चेयरमैन)', sub: 'सर्वोच्च प्रशासनिक नियंत्रण · चित्तौड़गढ़', color: '#b45309', bg: '#fef3c7' },
 };
 
 export default function Sidebar({ currentProfile }) {

@@ -57,16 +57,16 @@ export default function AdminPage() {
   }
 
   return (
-    <DashboardShell requiredRole="super_admin">
+    <DashboardShell requiredRole="chairman">
       {/* Header */}
       <div className="page-header">
         <div className="page-header-inner">
           <div>
-            <h1><Shield size={28} style={{ display: 'inline', marginRight: 10, color: 'var(--danger-500)' }} />Super Admin</h1>
-            <p>Platform configuration and system management</p>
+            <h1><Shield size={26} style={{ display: 'inline', marginRight: 10, color: 'var(--gov-gold)' }} />सभापति मास्टर प्रशासनिक नियंत्रण (Chairman Control Panel)</h1>
+            <p>चित्तौड़गढ़ नगर परिषद - मास्टर सिस्टम कॉन्फ़िगरेशन, वार्ड एवं यूजर प्रबंधन</p>
           </div>
-          <span className="badge badge-super_admin" style={{ fontSize: '0.875rem', padding: '8px 18px' }}>
-            {profile?.full_name}
+          <span className="badge badge-chairman" style={{ fontSize: '0.875rem', padding: '8px 18px', background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
+            👑 {profile?.full_name || 'प्रेम सिंह जी (सभापति)'}
           </span>
         </div>
       </div>
@@ -278,8 +278,7 @@ export default function AdminPage() {
               ['Employees',    PLATFORM_STATS.employees,   'employee',    '#10b981'],
               ['Councillors',  PLATFORM_STATS.parshads,    'parshad',     '#8b5cf6'],
               ['Officers',     PLATFORM_STATS.officers,    'officer',     '#3b82f6'],
-              ['Chairman',     PLATFORM_STATS.chairmen,    'chairman',    '#f59e0b'],
-              ['Admins',       PLATFORM_STATS.admins,      'super_admin', '#ef4444'],
+              ['Chairman (सभापति)', PLATFORM_STATS.chairmen, 'chairman',  '#f59e0b'],
             ].map(([label, count, role, color]) => (
               <div key={label} className="card" style={{ textAlign: 'center', borderTop: `2px solid ${color}` }}>
                 <div style={{ fontSize: '1.75rem', fontWeight: 800, color, fontFamily: 'var(--font-heading)' }}>{count}</div>

@@ -1,149 +1,564 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
-import { CheckCircle, Clock, FileText, RotateCcw, Plus } from 'lucide-react';
+import {
+  FileText, Plus, ChevronDown, ChevronUp, MapPin, AlertCircle
+} from 'lucide-react';
 import Link from 'next/link';
 
-const MOCK = [
-  { id: 1, code: 'CTNP-2026-000087', category: 'कचरा / स्वच्छता (Garbage)', ward: 'वार्ड 24', status: 'in_progress', dept: 'स्वास्थ्य एवं स्वच्छता विभाग',   date: '28 सितं 2026', step: 3 },
-  { id: 2, code: 'CTNP-2026-000065', category: 'स्ट्रीट लाइट बंद (Street Light)',   ward: 'वार्ड 24', status: 'resolved',    dept: 'विद्युत अनुभाग',            date: '20 सितं 2026', step: 4 },
-  { id: 3, code: 'CTNP-2026-000041', category: 'सड़क गड्ढा मरम्मत (Road Pothole)',  ward: 'वार्ड 24', status: 'closed',      dept: 'निर्माण / इंजीनियरिंग',     date: '10 सितं 2026', step: 5 },
-  { id: 4, code: 'CTNP-2026-000018', category: 'पेयजल लीकेज (Water Pipeline)',     ward: 'वार्ड 24', status: 'reopened',    dept: 'जल प्रदाय अनुभाग',          date: '01 सितं 2026', step: -1 },
+const INITIAL_MOCK = [
+  {
+    id: 1,
+    code: 'CTNP-2026-000087',
+    category: 'कचरा / स्वच्छता (Garbage Clearance)',
+    ward: 'वार्ड 24',
+    status: 'in_progress',
+    dept: 'स्वास्थ्य एवं स्वच्छता विभाग',
+    date: '28 सितं 2026',
+    sla: '24 घंटे',
+    location: 'भारत माता चौक, मुख्य बाजार, चित्तौड़गढ़',
+    description: 'बाजार के मुख्य तिराहे पर कचरा पात्र ओवरफ्लो हो रहा है एवं आवारा पशु जमा हैं। कृपया शीघ्र उठवाया जाए।',
+    statusDetail: 'कार्य प्रगति पर है — फील्ड सफाई टीम मौके पर कचरा निष्कासन कर रही है।',
+    assignedStaff: 'रमेश मीणा (सफाई जमादार, मो: 98290-XXXXX)',
+  },
+  {
+    id: 2,
+    code: 'CTNP-2026-000065',
+    category: 'स्ट्रीट लाइट बंद (Street Light)',
+    ward: 'वार्ड 24',
+    status: 'resolved',
+    dept: 'विद्युत अनुभाग',
+    date: '20 सितं 2026',
+    sla: '48 घंटे',
+    location: 'गली संख्या 3, पोस्ट ऑफिस के पीछे, चित्तौड़गढ़',
+    description: 'पिछले तीन दिनों से खंभा संख्या 14 की एलईडी लाइट बंद है जिससे रात्रि में अंधेरा रहता है।',
+    statusDetail: 'समस्या का निस्तारण कर दिया गया है — नई एलईडी लाइट लगा दी गई है।',
+    assignedStaff: 'सुरेश कुमावत (विद्युत लाइनमैन)',
+  },
+  {
+    id: 3,
+    code: 'CTNP-2026-000041',
+    category: 'सड़क गड्ढा मरम्मत (Road Pothole)',
+    ward: 'वार्ड 24',
+    status: 'closed',
+    dept: 'निर्माण / इंजीनियरिंग शाखा',
+    date: '10 सितं 2026',
+    sla: '72 घंटे',
+    location: 'स्टेशन रोड कॉर्नर, निकट मंदिर',
+    description: 'बारिश के कारण मुख्य सड़क पर गहरा गड्ढा हो गया है, दुपहिया वाहन चालकों के गिरने का खतरा है।',
+    statusDetail: 'सड़क मरम्मत व डामरीकरण पूर्ण एवं कनिष्ठ अभियंता द्वारा सत्यापित।',
+    assignedStaff: 'विक्रम राठौड़ (सहायक अभियंता)',
+  },
+  {
+    id: 4,
+    code: 'CTNP-2026-000018',
+    category: 'पेयजल लीकेज (Water Pipeline)',
+    ward: 'वार्ड 24',
+    status: 'reopened',
+    dept: 'जल प्रदाय अनुभाग',
+    date: '01 सितं 2026',
+    sla: '24 घंटे',
+    location: 'हनुमान मंदिर के पास, वार्ड 24',
+    description: 'पेयजल पाइपलाइन में मुख्य जोड़ पर तेज रिसाव हो रहा है जिससे हजारों लीटर शुद्ध जल व्यर्थ बह रहा है।',
+    statusDetail: 'असंतोषजनक समाधान के कारण पुनः खुली — जेईएन को मौका निरीक्षण हेतु पुनः प्रेषित।',
+    assignedStaff: 'दिनेश शर्मा (जल प्रदाय प्रभारी)',
+  },
 ];
-
-const STEPS = ['दर्ज', 'स्वीकृत', 'आवंटित', 'प्रगति पर', 'निस्तारित', 'पूर्ण'];
-const STEP_COLORS = { 0:'#64748b', 1:'#1d4ed8', 2:'#7c3aed', 3:'#b45309', 4:'#15803d', 5:'#166534' };
 
 export default function CitizenComplaintsPage() {
   const { profile } = useAuth();
+  const [complaints, setComplaints] = useState(INITIAL_MOCK);
   const [feedback, setFeedback] = useState({});
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
+  const [reopenNote, setReopenNote] = useState({});
+  const [showReopenInput, setShowReopenInput] = useState({});
 
-  function markFeedback(id, val) {
-    setFeedback(prev => ({ ...prev, [id]: val }));
+  // Load any newly submitted complaints from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('chittorgarh_citizen_complaints');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge avoiding duplicates by code
+          const existingCodes = new Set(INITIAL_MOCK.map(m => m.code));
+          const newItems = parsed.filter(p => !existingCodes.has(p.code));
+          setComplaints([...newItems, ...INITIAL_MOCK]);
+          // Default expand the first item if newly submitted
+          if (newItems.length > 0) {
+            setExpandedId(newItems[0].id);
+          }
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  function toggleExpand(id) {
+    setExpandedId(prev => (prev === id ? null : id));
   }
+
+  function markSatisfied(id) {
+    setFeedback(prev => ({ ...prev, [id]: 'resolved' }));
+    setShowReopenInput(prev => ({ ...prev, [id]: false }));
+  }
+
+  function handleReopenSubmit(id) {
+    const note = reopenNote[id] || 'नागरिक द्वारा समाधान असंतोषजनक बताया गया।';
+    setComplaints(prev => prev.map(c => {
+      if (c.id === id) {
+        return {
+          ...c,
+          status: 'reopened',
+          statusDetail: `असंतोषजनक समाधान — नागरिक टिप्पणी: "${note}"। पुनः जांच जारी।`,
+        };
+      }
+      return c;
+    }));
+    setFeedback(prev => ({ ...prev, [id]: 'reopen' }));
+    setShowReopenInput(prev => ({ ...prev, [id]: false }));
+  }
+
+  // Filter logic
+  const filteredComplaints = complaints.filter(c => {
+    let matchesFilter = true;
+    if (filter === 'open') {
+      // All open/pending complaints
+      matchesFilter = ['submitted', 'assigned', 'in_progress', 'reopened'].includes(c.status);
+    } else if (filter === 'in_progress') {
+      matchesFilter = c.status === 'in_progress';
+    } else if (filter === 'resolved') {
+      matchesFilter = ['resolved', 'closed'].includes(c.status);
+    } else if (filter === 'reopened') {
+      matchesFilter = c.status === 'reopened';
+    }
+
+    const q = search.toLowerCase();
+    const matchesSearch = !q ||
+      c.code.toLowerCase().includes(q) ||
+      c.category.toLowerCase().includes(q) ||
+      c.dept.toLowerCase().includes(q) ||
+      (c.location && c.location.toLowerCase().includes(q));
+
+    return matchesFilter && matchesSearch;
+  });
+
+  // Dynamic counts
+  const totalCount = complaints.length;
+  const openCount = complaints.filter(c => ['submitted', 'assigned', 'in_progress', 'reopened'].includes(c.status)).length;
+  const inProgressCount = complaints.filter(c => c.status === 'in_progress').length;
+  const resolvedCount = complaints.filter(c => ['resolved', 'closed'].includes(c.status)).length;
+  const reopenedCount = complaints.filter(c => c.status === 'reopened').length;
 
   return (
     <DashboardShell requiredRole="citizen">
-      <div className="page-header" style={{ marginBottom: 'var(--space-4)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <h1 style={{ fontSize: '1.4rem', color: '#1e3a8a', marginBottom: 2 }}>मेरी दर्ज शिकायतें</h1>
-            <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>चित्तौड़गढ़ नगर परिषद में आपकी शिकायतों की अद्यतन स्थिति</p>
-          </div>
-          <Link href="/citizen/report" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-            <Plus size={16} /> नई शिकायत दर्ज करें
-          </Link>
+      <div style={{ maxWidth: 1040, margin: '0 auto' }}>
+        {/* Breadcrumb Navigation on Desktop */}
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.78rem', color: '#64748b', marginBottom: 12 }}>
+          <Link href="/citizen" style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 600 }}>नागरिक मुख्य पृष्ठ</Link>
+          <span>/</span>
+          <span style={{ color: '#0f172a', fontWeight: 600 }}>मेरी दर्ज शिकायतें (My Complaints)</span>
         </div>
-      </div>
 
-      {/* Summary Stats */}
-      <div className="stat-grid" style={{ marginBottom: 'var(--space-4)' }}>
-        <div className="stat-card blue">
-          <div className="stat-icon" style={{ background: '#eff6ff' }}><FileText size={18} color="#2563eb" /></div>
-          <div className="stat-value">4</div>
-          <div className="stat-label">कुल शिकायतें</div>
-        </div>
-        <div className="stat-card amber">
-          <div className="stat-icon" style={{ background: '#fef3c7' }}><Clock size={18} color="#d97706" /></div>
-          <div className="stat-value">1</div>
-          <div className="stat-label">प्रगति पर</div>
-        </div>
-        <div className="stat-card green">
-          <div className="stat-icon" style={{ background: '#dcfce7' }}><CheckCircle size={18} color="#16a34a" /></div>
-          <div className="stat-value">2</div>
-          <div className="stat-label">निस्तारित</div>
-        </div>
-        <div className="stat-card red">
-          <div className="stat-icon" style={{ background: '#fee2e2' }}><RotateCcw size={18} color="#dc2626" /></div>
-          <div className="stat-value">1</div>
-          <div className="stat-label">पुनः खुली</div>
-        </div>
-      </div>
-
-      {/* Complaints List */}
-      {MOCK.map(c => (
-        <div key={c.id} className="card" style={{ marginBottom: 'var(--space-3)', padding: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+        <div className="page-header" style={{ marginBottom: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
             <div>
-              <div className="complaint-code">{c.code}</div>
-              <div style={{ fontWeight: 700, color: '#0f172a', marginTop: 3, fontSize: '0.95rem' }}>{c.category}</div>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 2 }}>
-                {c.ward} • <span style={{ color: '#1e3a8a', fontWeight: 600 }}>{c.dept}</span> • {c.date}
-              </div>
+              <h1 style={{ fontSize: '1.4rem', color: '#1e3a8a', marginBottom: 3, fontWeight: 800 }}>मेरी दर्ज नागरिक शिकायतें</h1>
+              <p style={{ fontSize: '0.825rem', color: '#64748b', margin: 0 }}>चित्तौड़गढ़ नगर परिषद - अपनी दर्ज शिकायतों का पूरा विवरण खोलें, स्थिति देखें व फीडबैक दें</p>
             </div>
-            <StatusBadge status={c.status} />
+            <Link href="/citizen/report" className="btn btn-primary" style={{ padding: '9px 18px', fontSize: '0.85rem', gap: 6 }}>
+              <Plus size={16} /> नई समस्या दर्ज करें
+            </Link>
+          </div>
+        </div>
+
+        {/* Dynamic Summary Stats Grid (Clickable) */}
+        <div className="citizen-stat-grid" style={{ marginBottom: 'var(--space-4)' }}>
+          <div
+            className="card"
+            style={{
+              padding: '14px 10px',
+              textAlign: 'center',
+              borderTop: filter === 'all' ? '4px solid #1e3a8a' : '2px solid #cbd5e1',
+              cursor: 'pointer',
+              background: filter === 'all' ? '#eff6ff' : '#ffffff',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 82,
+            }}
+            onClick={() => setFilter('all')}
+          >
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{totalCount}</div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
           </div>
 
-          {/* Progress Steps */}
-          {c.status !== 'reopened' && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: 'flex', gap: 4, marginBottom: 5 }}>
-                {STEPS.map((_, i) => (
-                  <div key={i} style={{
-                    flex: 1, height: 5, borderRadius: 3,
-                    background: i <= c.step ? (STEP_COLORS[c.step] || '#15803d') : '#e2e8f0',
-                    transition: 'background 0.3s',
-                  }} />
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: '#94a3b8' }}>
-                {STEPS.map((s, i) => (
-                  <span key={s} style={{ color: i === c.step ? STEP_COLORS[c.step] : undefined, fontWeight: i === c.step ? 700 : 500 }}>{s}</span>
-                ))}
-              </div>
-            </div>
-          )}
+          <div
+            className="card"
+            style={{
+              padding: '14px 10px',
+              textAlign: 'center',
+              borderTop: filter === 'open' ? '4px solid #d97706' : '2px solid #cbd5e1',
+              cursor: 'pointer',
+              background: filter === 'open' ? '#fffbeb' : '#ffffff',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 82,
+            }}
+            onClick={() => setFilter('open')}
+          >
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{openCount}</div>
+            <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>खुली / लंबित</div>
+          </div>
 
-          {/* Reopened Alert */}
-          {c.status === 'reopened' && (
-            <div className="alert alert-error" style={{ marginBottom: 10, padding: '10px 12px', fontSize: '0.8125rem' }}>
-              यह शिकायत असंतोषजनक समाधान के कारण पुनः खोली गई है एवं संबंधित कनिष्ठ अभियंता/अधिकारी को प्रेषित है।
-            </div>
-          )}
+          <div
+            className="card"
+            style={{
+              padding: '14px 10px',
+              textAlign: 'center',
+              borderTop: filter === 'resolved' ? '4px solid #16a34a' : '2px solid #cbd5e1',
+              cursor: 'pointer',
+              background: filter === 'resolved' ? '#f0fdf4' : '#ffffff',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 82,
+            }}
+            onClick={() => setFilter('resolved')}
+          >
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{resolvedCount}</div>
+            <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>निस्तारित</div>
+          </div>
 
-          {/* Feedback section for resolved */}
-          {c.status === 'resolved' && !feedback[c.id] && (
-            <div style={{
-              background: '#f0fdf4', border: '1px solid #bbf7d0',
-              borderRadius: 8, padding: '10px 12px',
-            }}>
-              <div style={{ fontWeight: 600, color: '#15803d', fontSize: '0.8125rem', marginBottom: 8 }}>
-                ✅ क्या आपके वार्ड में कार्य पूरा हुआ?
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  className="btn btn-success"
-                  style={{ fontSize: '0.75rem', padding: '5px 12px' }}
-                  onClick={() => markFeedback(c.id, 'resolved')}
-                >
-                  हाँ, समाधान हुआ
-                </button>
-                <button
-                  className="btn btn-danger"
-                  style={{ fontSize: '0.75rem', padding: '5px 12px' }}
-                  onClick={() => markFeedback(c.id, 'reopen')}
-                >
-                  नहीं, पुनः खोलें
-                </button>
-              </div>
-            </div>
-          )}
-
-          {feedback[c.id] === 'resolved' && (
-            <div style={{ color: '#16a34a', fontSize: '0.8125rem', fontWeight: 600 }}>
-              ✓ आपकी संतुष्टि दर्ज कर ली गई है। धन्यवाद!
-            </div>
-          )}
-          {feedback[c.id] === 'reopen' && (
-            <div style={{ color: '#dc2626', fontSize: '0.8125rem', fontWeight: 600 }}>
-              ✓ शिकायत पुनः समीक्षा हेतु प्रेषित कर दी गई है।
-            </div>
-          )}
+          <div
+            className="card"
+            style={{
+              padding: '14px 10px',
+              textAlign: 'center',
+              borderTop: filter === 'reopened' ? '4px solid #dc2626' : '2px solid #cbd5e1',
+              cursor: 'pointer',
+              background: filter === 'reopened' ? '#fef2f2' : '#ffffff',
+              transition: 'all 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 82,
+            }}
+            onClick={() => setFilter('reopened')}
+          >
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{reopenedCount}</div>
+            <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 700, marginTop: 4 }}>पुनः खुली</div>
+          </div>
         </div>
-      ))}
+
+        {/* Filter Bar with Open / Closed / Search */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {[
+              { id: 'all', label: 'सभी (All)' },
+              { id: 'open', label: 'खुली / लंबित (Open)' },
+              { id: 'in_progress', label: 'प्रगति पर' },
+              { id: 'resolved', label: 'निस्तारित' },
+              { id: 'reopened', label: 'पुनः खुली' },
+            ].map(f => (
+              <button
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 9999,
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: filter === f.id ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                  background: filter === f.id ? '#1d4ed8' : '#ffffff',
+                  color: filter === f.id ? '#ffffff' : '#475569',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <input
+            type="text"
+            placeholder="शिकायत क्र., श्रेणी या स्थान खोजें..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: '1px solid #cbd5e1',
+              fontSize: '0.8rem',
+              width: '100%',
+              maxWidth: 260,
+              background: '#ffffff'
+            }}
+          />
+        </div>
+
+        {/* Complaints List */}
+        {filteredComplaints.length === 0 ? (
+          <div className="card" style={{ padding: '36px', textAlign: 'center', color: '#64748b' }}>
+            <FileText size={36} color="#94a3b8" style={{ margin: '0 auto 8px' }} />
+            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>इस फ़िल्टर में कोई शिकायत नहीं मिली।</div>
+            <div style={{ fontSize: '0.8rem', marginTop: 4 }}>सभी शिकायतें देखने हेतु "सभी (All)" पर क्लिक करें।</div>
+          </div>
+        ) : (
+          filteredComplaints.map(c => {
+            const isExpanded = expandedId === c.id;
+
+            return (
+              <div
+                key={c.id}
+                className="card"
+                style={{
+                  marginBottom: 14,
+                  padding: '16px 18px',
+                  background: '#ffffff',
+                  border: isExpanded ? '1.5px solid #3b82f6' : '1px solid #e2e8f0',
+                  boxShadow: isExpanded ? '0 4px 14px rgba(59, 130, 246, 0.1)' : '0 1px 3px rgba(0,0,0,0.04)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {/* Header Row: Top bar with code on left and Status Badge on right */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden' }}>
+                    <span className="complaint-code" style={{ fontSize: '0.8rem', fontWeight: 800 }}>{c.code}</span>
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <StatusBadge status={c.status} />
+                  </div>
+                </div>
+
+                {/* Complaint Title & Details */}
+                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1rem', lineHeight: 1.3, marginBottom: 4 }}>
+                  {c.category}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  <span>{c.ward}</span>
+                  <span>•</span>
+                  <span style={{ color: '#1e3a8a', fontWeight: 700 }}>{c.dept}</span>
+                  <span>•</span>
+                  <span>दर्ज: {c.date}</span>
+                </div>
+
+                {/* Status Summary Strip */}
+                <div style={{
+                  marginBottom: 10,
+                  background: '#f8fafc',
+                  padding: '10px 12px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                }}>
+                  <div style={{ fontSize: '0.8rem', color: '#334155' }}>
+                    <span style={{ fontWeight: 700, color: '#1e3a8a', marginRight: 6 }}>अद्यतन स्थिति:</span>
+                    <span>{c.statusDetail}</span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    अनुमानित समय: <strong style={{ color: '#0f172a' }}>{c.sla}</strong>
+                  </div>
+                </div>
+
+                {/* Sleek 100% Width Toggle Button */}
+                <button
+                  type="button"
+                  onClick={() => toggleExpand(c.id)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    border: isExpanded ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+                    background: isExpanded ? '#eff6ff' : '#f8fafc',
+                    color: isExpanded ? '#1d4ed8' : '#334155',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: 6,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FileText size={15} color={isExpanded ? '#1d4ed8' : '#64748b'} />
+                    <span>{isExpanded ? 'शिकायत विवरण बंद करें' : 'शिकायत विवरण देखें'}</span>
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: isExpanded ? '#1d4ed8' : '#64748b' }}>
+                    <span>{isExpanded ? 'संक्षिप्त करें' : 'विस्तार से'}</span>
+                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </span>
+                </button>
+
+                {/* EXPANDED FULL DETAILS VIEW */}
+                {isExpanded && (
+                  <div style={{
+                    marginTop: 14,
+                    paddingTop: 14,
+                    borderTop: '2px solid #e2e8f0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12
+                  }}>
+                    {/* Location & Assigned Staff Grid */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                      gap: 10,
+                      background: '#f8fafc',
+                      padding: '12px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #e2e8f0',
+                      fontSize: '0.8rem'
+                    }}>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: '0.72rem', fontWeight: 600 }}>📍 समस्या स्थल (Location)</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginTop: 2 }}>{c.location || 'वार्ड 24, चित्तौड़गढ़'}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#64748b', fontSize: '0.72rem', fontWeight: 600 }}>👷 वार्ड बीट प्रभारी / कर्मी</div>
+                        <div style={{ fontWeight: 700, color: '#1e3a8a', marginTop: 2 }}>{c.assignedStaff || 'रमेश मीणा (सफाई जमादार)'}</div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Description */}
+                    {c.description && (
+                      <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                          📝 नागरिक द्वारा दर्ज समस्या का विवरण:
+                        </div>
+                        <p style={{ fontSize: '0.825rem', color: '#1e293b', margin: 0, lineHeight: 1.5 }}>
+                          {c.description}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Photo Proof Preview (if attached) */}
+                    {c.photo && (
+                      <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+                          📷 संलग्न फोटो प्रमाण:
+                        </div>
+                        <img
+                          src={c.photo}
+                          alt="Complaint Proof"
+                          style={{ maxHeight: 180, maxWidth: '100%', borderRadius: 6, border: '1px solid #cbd5e1', objectFit: 'contain' }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Civic Helpline Footer */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: 8,
+                      paddingTop: 4,
+                      fontSize: '0.75rem',
+                      color: '#64748b'
+                    }}>
+                      <span>📞 नगर परिषद कंट्रोल रूम: <strong>01472-241246</strong></span>
+                      <span>राजस्थान संपर्क: <strong>181</strong> (टोल फ्री)</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reopened Alert */}
+                {c.status === 'reopened' && (
+                  <div className="alert alert-error" style={{ marginTop: 12, marginBottom: 6, padding: '10px 14px', fontSize: '0.8125rem' }}>
+                    यह शिकायत असंतोषजनक समाधान के कारण पुनः खोली गई है एवं संबंधित शाखा को प्रेषित है।
+                  </div>
+                )}
+
+                {/* Feedback section for resolved complaints */}
+                {(c.status === 'resolved' || c.status === 'closed') && !feedback[c.id] && (
+                  <div style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: 10,
+                    padding: '12px 14px',
+                    marginTop: 12,
+                  }}>
+                    <div style={{ fontWeight: 700, color: '#15803d', fontSize: '0.85rem', marginBottom: 8 }}>
+                      ✅ क्या आपके वार्ड में समस्या का संतोषजनक समाधान हुआ?
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        className="btn btn-success"
+                        style={{ fontSize: '0.78rem', padding: '7px 14px', flex: '1 1 130px', textAlign: 'center', justifyContent: 'center' }}
+                        onClick={() => markSatisfied(c.id)}
+                      >
+                        ✓ हाँ, संतुष्ट हैं
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        style={{ fontSize: '0.78rem', padding: '7px 14px', flex: '1 1 130px', textAlign: 'center', justifyContent: 'center' }}
+                        onClick={() => setShowReopenInput(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
+                      >
+                        ✕ असंतोषजनक (पुनः खोलें)
+                      </button>
+                    </div>
+
+                    {/* Reopen Reason Input Box */}
+                    {showReopenInput[c.id] && (
+                      <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #bbf7d0' }}>
+                        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#991b1b', marginBottom: 4 }}>
+                          कृपया असंतोष का कारण दर्ज करें (शिकायत पुनः खोली जाएगी):
+                        </label>
+                        <textarea
+                          rows={2}
+                          placeholder="उदा. मौके पर अभी भी कचरा पड़ा है या लाइट पुनः बंद हो गई..."
+                          value={reopenNote[c.id] || ''}
+                          onChange={e => setReopenNote({ ...reopenNote, [c.id]: e.target.value })}
+                          style={{ width: '100%', padding: '8px', fontSize: '0.8rem', borderRadius: 6, border: '1px solid #fca5a5', marginBottom: 8 }}
+                        />
+                        <button
+                          className="btn btn-danger"
+                          style={{ fontSize: '0.78rem', padding: '6px 14px' }}
+                          onClick={() => handleReopenSubmit(c.id)}
+                        >
+                          पुनः खोलने हेतु प्रेषित करें
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {feedback[c.id] === 'resolved' && (
+                  <div style={{ color: '#16a34a', fontSize: '0.85rem', fontWeight: 700, marginTop: 10, padding: '8px 12px', background: '#f0fdf4', borderRadius: 6 }}>
+                    ✓ आपका संतोषजनक फीडबैक दर्ज कर लिया गया है। धन्यवाद!
+                  </div>
+                )}
+                {feedback[c.id] === 'reopen' && (
+                  <div style={{ color: '#dc2626', fontSize: '0.85rem', fontWeight: 700, marginTop: 10, padding: '8px 12px', background: '#fef2f2', borderRadius: 6 }}>
+                    ✓ शिकायत पुनः समीक्षा हेतु संबंधित शाखा प्रभारी को प्रेषित कर दी गई है।
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
     </DashboardShell>
   );
 }

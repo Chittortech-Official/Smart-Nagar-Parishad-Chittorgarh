@@ -9,16 +9,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const MOBILE_ROLES = [
-  { email: 'citizen@demo.in',  label: 'नागरिक (Citizen)',        sub: 'Rajesh Kumar · Ward 24',   icon: UserCircle, color: '#0284c7', role: 'citizen',     path: '/citizen' },
-  { email: 'employee@demo.in', label: 'कर्मचारी (Employee)',     sub: 'Ramesh Meena · Sanitation', icon: Users,      color: '#16a34a', role: 'employee',    path: '/employee' },
-  { email: 'parshad@demo.in',  label: 'पार्षद (Councillor)',     sub: 'Kamla Bai · Ward 24',       icon: Briefcase,  color: '#7c3aed', role: 'parshad',     path: '/parshad' },
-];
-
-const LAPTOP_ROLES = [
-  { email: 'officer@demo.in',  label: 'अधिकारी (Officer)',       sub: 'Suresh Sharma · Sanitation',icon: Building2,  color: '#2563eb', role: 'officer',     path: '/officer' },
-  { email: 'chairman@demo.in', label: 'चेयरमैन (Chairman)',      sub: 'Prem Singh Ji · All Wards', icon: Crown,      color: '#d97706', role: 'chairman',    path: '/chairman' },
-  { email: 'admin@demo.in',    label: 'एडमिन (Super Admin)',     sub: 'System Admin · Chittorgarh',icon: Shield,     color: '#dc2626', role: 'super_admin', path: '/admin' },
+const ALL_ROLES = [
+  { email: 'citizen@demo.in',  label: 'नागरिक (Citizen)',        sub: 'राजेश कुमार · वार्ड 24 (Mobile & Desktop)',   icon: UserCircle, color: '#0284c7', role: 'citizen',     path: '/citizen' },
+  { email: 'employee@demo.in', label: 'कर्मचारी (Employee)',     sub: 'रमेश मीणा · स्वास्थ्य शाखा (Mobile Only)',   icon: Users,      color: '#16a34a', role: 'employee',    path: '/employee' },
+  { email: 'parshad@demo.in',  label: 'वार्ड पार्षद (Councillor)', sub: 'श्रीमती कमला बाई · वार्ड 24 (Mobile & Desktop)', icon: Briefcase, color: '#7c3aed', role: 'parshad', path: '/parshad' },
+  { email: 'chairman@demo.in', label: 'सभापति (Chairman)',       sub: 'श्री प्रेम सिंह जी · सर्वोच्च नियंत्रण कक्ष',  icon: Crown,      color: '#d97706', role: 'chairman',   path: '/chairman' },
 ];
 
 export default function RoleSwitcher() {
@@ -43,12 +38,12 @@ export default function RoleSwitcher() {
             </button>
           </div>
 
-          {/* Mobile Group */}
+          {/* Role list */}
           <div className="role-group-label">
-            <Smartphone size={13} color="#0284c7" />
-            <span>मोबाइल पोर्टल (Mobile Views)</span>
+            <Crown size={13} color="#ea580c" />
+            <span>नगर परिषद पोर्टल (Official Portals)</span>
           </div>
-          {MOBILE_ROLES.map((r) => {
+          {ALL_ROLES.map((r) => {
             const Icon = r.icon;
             const isCurrent = profile?.role === r.role;
             return (
@@ -71,59 +66,7 @@ export default function RoleSwitcher() {
                   href={r.path}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="अलग टैब में खोलें (Open in New Tab / Side-by-Side)"
-                  style={{
-                    padding: '8px',
-                    color: '#64748b',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textDecoration: 'none',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#1e3a8a'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#64748b'}
-                >
-                  <ExternalLink size={14} />
-                </a>
-              </div>
-            );
-          })}
-
-          <div className="role-group-divider" />
-
-          {/* Laptop Group */}
-          <div className="role-group-label">
-            <Monitor size={13} color="#ea580c" />
-            <span>लैपटॉप पोर्टल (Laptop Only)</span>
-          </div>
-          {LAPTOP_ROLES.map((r) => {
-            const Icon = r.icon;
-            const isCurrent = profile?.role === r.role;
-            return (
-              <div key={r.email} style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', marginBottom: 4 }}>
-                <button
-                  className={`role-option ${isCurrent ? 'current' : ''}`}
-                  onClick={() => handleSwitch(r)}
-                  style={{ flex: 1 }}
-                >
-                  <span className="role-dot" style={{ background: r.color }} />
-                  <Icon size={15} style={{ color: r.color, flexShrink: 0 }} />
-                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <span className="role-name">
-                      {r.label} {isCurrent && '✓'}
-                    </span>
-                    <span className="role-sub">{r.sub}</span>
-                  </span>
-                </button>
-                <a
-                  href={r.path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="अलग टैब में खोलें (Open in New Tab / Side-by-Side)"
+                  title="अलग टैब में खोलें (Open in New Tab)"
                   style={{
                     padding: '8px',
                     color: '#64748b',

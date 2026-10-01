@@ -336,13 +336,21 @@ a:hover { color: var(--accent-600); }
   background-color: var(--bg-primary);
 }
 
-/* Mobile-first layout for Citizen, Employee, Parshad */
+/* Mobile-first layout for Citizen, Employee, Parshad (Now fully responsive on Desktop too!) */
 .mobile-app-main {
   flex: 1;
   margin-left: 0 !important;
-  padding-top: 66px; /* Exactly below 57px mobile header with breathing room */
-  padding-bottom: calc(var(--mobile-nav-height) + 16px);
+  padding-top: 76px; /* On mobile: 57px header + 19px clean spacing */
+  padding-bottom: 120px; /* Generous bottom spacing: keeps all content and buttons clear above bottom navigation bar */
   background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .mobile-app-main {
+    padding-top: 114px; /* On desktop: 97px fixed header + 17px clean spacing - ensures top content is never cut off */
+    padding-bottom: 60px;
+  }
 }
 
 .page-container {
@@ -352,9 +360,17 @@ a:hover { color: var(--accent-600); }
 }
 
 .mobile-container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 640px;
   margin: 0 auto;
   padding: 12px 14px 24px;
+}
+
+@media (min-width: 768px) {
+  .mobile-container {
+    max-width: 1240px;
+    padding: 24px 32px 48px;
+  }
 }
 
 /* ── Desktop Sidebar (Strictly for Admin/Officer/Chairman) ──── */
@@ -511,6 +527,44 @@ a:hover { color: var(--accent-600); }
   padding: 0 8px;
 }
 
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+.navbar-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.nav-link-pill:hover {
+  background: #f1f5f9;
+  color: var(--gov-navy);
+}
+
+.nav-link-pill.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
 .mobile-nav-item {
   display: flex;
   flex-direction: column;
@@ -537,29 +591,14 @@ a:hover { color: var(--accent-600); }
 }
 
 .mobile-nav-item.active {
-  color: var(--gov-green);
-}
-
-.mobile-nav-item.active .mobile-nav-icon-wrap {
-  color: var(--gov-green);
-  transform: translateY(-2px);
-}
-
-.mobile-nav-item.highlight {
   color: var(--gov-navy);
 }
 
-.mobile-nav-item.highlight .mobile-nav-icon-wrap {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, var(--gov-green), #16a34a);
-  color: #ffffff;
-  border-radius: var(--radius-full);
-  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
-  margin-top: -12px;
+.mobile-nav-item.active .mobile-nav-icon-wrap {
+  color: var(--gov-navy);
 }
 
-.mobile-nav-item.highlight .mobile-nav-label {
+.mobile-nav-item.active .mobile-nav-label {
   color: var(--gov-navy);
   font-weight: 700;
 }
@@ -1115,6 +1154,20 @@ tbody tr:last-child td {
   z-index: 9999;
 }
 
+@media (max-width: 767px) {
+  .role-switcher {
+    bottom: 66px;
+    right: 8px;
+  }
+  .role-switcher-toggle {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 0.7rem;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+}
+
 @media (min-width: 1024px) {
   .role-switcher {
     bottom: var(--space-4);
@@ -1368,6 +1421,67 @@ tbody tr:last-child td {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── Responsive Citizen Portal Layouts ────────────────────────── */
+.citizen-grid-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .citizen-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: start;
+  }
+}
+
+.report-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+@media (min-width: 768px) {
+  .report-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+}
+
+.citizen-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .citizen-stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.citizen-hero-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+@media (min-width: 768px) {
+  .citizen-hero-card {
+    padding: 22px 26px;
+    margin-bottom: 20px;
+  }
 }
 
 .loading-screen {

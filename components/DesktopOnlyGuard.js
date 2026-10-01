@@ -5,12 +5,10 @@ import { useAuth } from '@/lib/authContext';
 import ChittorgarhLogo from './ChittorgarhLogo';
 import { Monitor, Smartphone, ArrowRight, LogOut, ShieldAlert } from 'lucide-react';
 
-const DESKTOP_ROLES = ['super_admin', 'chairman', 'officer'];
+const DESKTOP_ROLES = ['chairman'];
 
 const ROLE_NAMES = {
-  super_admin: 'सुपर एडमिन (Super Admin)',
-  chairman: 'चेयरमैन / सभापति (Chairman)',
-  officer: 'विभागीय अधिकारी (Department Officer)',
+  chairman: 'चेयरमैन / सभापति',
 };
 
 export default function DesktopOnlyGuard({ children, role }) {

@@ -1,23 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
 import ChittorgarhLogo from './ChittorgarhLogo';
-import { LogOut, Phone } from 'lucide-react';
+import { LogOut, Phone, Home, Plus, ClipboardList } from 'lucide-react';
 
 const ROLE_CONFIG = {
   citizen:     { label: 'नागरिक',  badgeBg: '#e0f2fe', badgeText: '#0369a1', border: '#bae6fd' },
   employee:    { label: 'कर्मचारी', badgeBg: '#dcfce7', badgeText: '#15803d', border: '#bbf7d0' },
   parshad:     { label: 'पार्षद',   badgeBg: '#f3e8ff', badgeText: '#7e22ce', border: '#e9d5ff' },
-  officer:     { label: 'अधिकारी',  badgeBg: '#eff6ff', badgeText: '#1d4ed8', border: '#bfdbfe' },
-  chairman:    { label: 'सभापति',   badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
-  super_admin: { label: 'एडमिन',    badgeBg: '#fee2e2', badgeText: '#b91c1c', border: '#fca5a5' },
+  chairman:    { label: 'सभापति (चेयरमैन)', badgeBg: '#fef3c7', badgeText: '#b45309', border: '#fde68a' },
 };
 
 export default function Navbar({ currentProfile }) {
   const { profile: authProfile, logout } = useAuth();
   const profile = currentProfile || authProfile;
   const role = profile?.role;
+  const pathname = usePathname();
   const cfg = ROLE_CONFIG[role] || { label: 'पोर्टल', badgeBg: '#f1f5f9', badgeText: '#334155', border: '#e2e8f0' };
 
   return (
@@ -48,9 +48,26 @@ export default function Navbar({ currentProfile }) {
 
       {/* 3. Main Brand & Navigation Bar */}
       <nav className="navbar">
-        <Link href="/" className="navbar-brand-link">
-          <ChittorgarhLogo size={34} compact={true} />
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Link href="/" className="navbar-brand-link">
+            <ChittorgarhLogo size={34} compact={true} />
+          </Link>
+
+          {/* Desktop Navigation for Citizen */}
+          {role === 'citizen' && (
+            <div className="navbar-nav-links hide-mobile">
+              <Link href="/citizen" className={`nav-link-pill ${pathname === '/citizen' ? 'active' : ''}`}>
+                <Home size={15} /> <span>मुख्य डैशबोर्ड</span>
+              </Link>
+              <Link href="/citizen/report" className={`nav-link-pill ${pathname === '/citizen/report' ? 'active' : ''}`} style={{ color: '#16a34a', fontWeight: 700 }}>
+                <Plus size={15} /> <span>समस्या दर्ज करें</span>
+              </Link>
+              <Link href="/citizen/complaints" className={`nav-link-pill ${pathname === '/citizen/complaints' ? 'active' : ''}`}>
+                <ClipboardList size={15} /> <span>मेरी शिकायतें</span>
+              </Link>
+            </div>
+          )}
+        </div>
 
         <div className="navbar-right">
           {profile && (

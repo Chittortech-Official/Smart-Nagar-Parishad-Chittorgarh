@@ -11,14 +11,12 @@ const DEMO_LOGINS = [
   { email: 'citizen@demo.in',  name: 'राजेश कुमार (Rajesh)',  role: 'नागरिक (Citizen)',        type: 'mobile', color: '#0284c7', bg: '#e0f2fe' },
   { email: 'employee@demo.in', name: 'रमेश मीणा (Ramesh)',    role: 'कर्मचारी (Employee)',     type: 'mobile', color: '#16a34a', bg: '#dcfce7' },
   { email: 'parshad@demo.in',  name: 'कमला बाई (Kamla Bai)',   role: 'वार्ड पार्षद (Councillor)',type: 'mobile', color: '#7c3aed', bg: '#f3e8ff' },
-  { email: 'officer@demo.in',  name: 'सुरेश शर्मा (Suresh)',   role: 'विभागीय अधिकारी (Officer)',type: 'laptop', color: '#2563eb', bg: '#eff6ff' },
-  { email: 'chairman@demo.in', name: 'प्रेम सिंह जी (Chairman)',role: 'सभापति / चेयरमैन',       type: 'laptop', color: '#d97706', bg: '#fef3c7' },
-  { email: 'admin@demo.in',    name: 'सिस्टम एडमिन (Admin)',    role: 'सुपर एडमिन (Admin)',      type: 'laptop', color: '#dc2626', bg: '#fee2e2' },
+  { email: 'chairman@demo.in', name: 'श्री प्रेम सिंह जी (Chairman)', role: 'सभापति / चेयरमैन', type: 'laptop', color: '#d97706', bg: '#fef3c7' },
 ];
 
 const ROLE_PATHS = {
   citizen: '/citizen', employee: '/employee', parshad: '/parshad',
-  officer: '/officer', chairman: '/chairman', super_admin: '/admin',
+  chairman: '/chairman',
 };
 
 export default function LoginPage() {

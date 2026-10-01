@@ -11,11 +11,11 @@ import {
 const MOBILE_NAV_CONFIG = {
   citizen: [
     { href: '/citizen',            label: 'होम',        sub: 'Dashboard',   icon: Home },
-    { href: '/citizen/report',     label: 'समस्या दर्ज', sub: 'Report',      icon: PlusCircle, highlight: true },
-    { href: '/citizen/complaints', label: 'शिकायतें',   sub: 'Complaints',  icon: ClipboardList },
+    { href: '/citizen/report',     label: 'समस्या दर्ज', sub: 'Report',      icon: PlusCircle },
+    { href: '/citizen/complaints', label: 'मेरी शिकायतें', sub: 'Complaints',  icon: ClipboardList },
   ],
   employee: [
-    { href: '/employee',         label: 'हाजिरी व कार्य', sub: 'Attendance', icon: UserCheck, highlight: true },
+    { href: '/employee',         label: 'हाजिरी व कार्य', sub: 'Attendance', icon: UserCheck },
     { href: '/employee/history', label: 'इतिहास',        sub: 'History',    icon: ClipboardList },
   ],
   parshad: [
