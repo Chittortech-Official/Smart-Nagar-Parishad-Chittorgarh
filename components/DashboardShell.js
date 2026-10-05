@@ -34,42 +34,26 @@ export default function DashboardShell({
   const router = useRouter();
   const [shellMounted, setShellMounted] = useState(false);
 
-  // If in guest mode, do not assign any profile or role links
+  // Direct role assignment: Each portal route operates directly with its own role
   const effectiveProfile = guestMode
     ? null
     : (currentProfile !== undefined
         ? currentProfile
-        : ((profile && (!requiredRole || profile.role === requiredRole))
-            ? profile
-            : (requiredRole && ROLE_DEMO_USERS[requiredRole] ? ROLE_DEMO_USERS[requiredRole] : profile || ROLE_DEMO_USERS.citizen)
-          )
+        : (requiredRole && ROLE_DEMO_USERS[requiredRole] ? ROLE_DEMO_USERS[requiredRole] : profile || ROLE_DEMO_USERS.citizen)
       );
 
-  const activeRole = guestMode ? 'guest' : (effectiveProfile?.role || requiredRole || 'citizen');
+  const activeRole = guestMode ? 'guest' : (requiredRole || effectiveProfile?.role || 'citizen');
   const isDesktopRole = DESKTOP_ROLES.includes(activeRole);
   const isMobileRole = MOBILE_ROLES.includes(activeRole) || guestMode;
 
   useEffect(() => {
-    // Role Gate: Ensure session matches requiredRole without kicking to /citizen on reload
-    if (!guestMode && requiredRole && requiredRole !== 'citizen') {
-      try {
-        const stored = localStorage.getItem('sc_demo_session');
-        const parsed = stored ? JSON.parse(stored) : null;
-        if (!parsed || parsed.role !== requiredRole) {
-          if (ROLE_DEMO_USERS[requiredRole]) {
-            localStorage.setItem('sc_demo_session', JSON.stringify(ROLE_DEMO_USERS[requiredRole]));
-          }
-        }
-      } catch (_) {}
-    }
-
     // Official government emblem loading screen for all mobile views
     const timer = setTimeout(() => {
       setShellMounted(true);
     }, 1600);
 
     return () => clearTimeout(timer);
-  }, [requiredRole, guestMode, router]);
+  }, []);
 
   // Render official Rajasthan emblem loading screen across all mobile panels
   if (isMobileRole && !shellMounted) {

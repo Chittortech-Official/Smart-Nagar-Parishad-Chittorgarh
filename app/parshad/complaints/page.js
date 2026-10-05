@@ -148,8 +148,8 @@ export default function ParshadComplaintsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filtered.map(c => (
               <Link
-                key={c.id}
-                href={`/parshad/complaints/${c.id}`}
+                key={c.code || c.id}
+                href={`/parshad/complaints/${c.code || c.id}`}
                 style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
               >
                 <div
