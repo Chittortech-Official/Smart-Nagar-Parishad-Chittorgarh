@@ -17,7 +17,7 @@ import {
   Plus, ChevronRight, ArrowRight, PhoneCall,
   MapPin, Truck, UserCheck, ShieldCheck, AlertCircle,
   HelpCircle, Sparkles, CheckCircle2, User, LogOut, Phone,
-  Crown, Calendar
+  Crown, Calendar, Loader2
 } from 'lucide-react';
 
 const STATUS_CONFIG = {
