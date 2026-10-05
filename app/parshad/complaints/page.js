@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
+import { getSharedLiveComplaints } from '@/lib/citizenService';
 import {
   MapPin, ArrowLeft, Filter, Search,
-  ChevronRight, Image, Phone
+  ChevronRight, Image, Phone, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -106,10 +107,38 @@ const WARD_COMPLAINTS = [
 
 export default function ParshadComplaintsPage() {
   const { profile } = useAuth();
+  const [allComplaints, setAllComplaints] = useState(WARD_COMPLAINTS);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
-  const filtered = WARD_COMPLAINTS.filter(c => {
+  useEffect(() => {
+    const live = getSharedLiveComplaints(24);
+    if (live && live.length > 0) {
+      const formatted = live.map(c => ({
+        id: c.id || c.code,
+        code: c.code,
+        category: c.category,
+        status: c.status || 'submitted',
+        location: c.location,
+        date: c.date,
+        citizen: c.citizenName || 'नागरिक',
+        citizenPhone: c.citizenPhone || '98290-00000',
+        description: c.description || 'नागरिक द्वारा दर्ज शिकायत',
+        photo: !!c.hasPhoto,
+        dept: c.dept,
+        employee: 'कार्य आवंटन प्रक्रियाधीन',
+        routedBy: 'नागरिक पोर्टल द्वारा स्वतः रूटेड',
+        isNew: true,
+      }));
+      const existingCodes = new Set(WARD_COMPLAINTS.map(c => c.code));
+      const newItems = formatted.filter(item => !existingCodes.has(item.code));
+      if (newItems.length > 0) {
+        setAllComplaints([...newItems, ...WARD_COMPLAINTS]);
+      }
+    }
+  }, []);
+
+  const filtered = allComplaints.filter(c => {
     if (filter === 'open' && !['submitted', 'assigned', 'in_progress', 'reopened'].includes(c.status)) return false;
     if (filter === 'resolved' && !['resolved', 'closed'].includes(c.status)) return false;
     if (search) {

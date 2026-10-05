@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/authContext';
 import {
   LayoutDashboard, FileText, MapPin, Users,
   Bell, ChevronRight, Building2,
-  ClipboardList, Map, Shield,
+  ClipboardList, Landmark, Shield,
   Tag, UserCog, LogOut, CheckCircle2,
   AlertTriangle
 } from 'lucide-react';
@@ -16,7 +16,7 @@ const NAV = {
     { href: '/chairman',            label: 'नगर परिषद डैशबोर्ड', sub: 'City Overview', icon: LayoutDashboard },
     { href: '/chairman/wards',      label: 'समस्त 60 वार्ड',     sub: 'All Wards',     icon: MapPin },
     { href: '/chairman/departments',label: 'नगरपालिका विभाग',   sub: 'Departments',   icon: Building2 },
-    { href: '/chairman/map',        label: 'लाइव GIS मैप',       sub: 'City GIS Map',  icon: Map },
+    { href: '/chairman/authorities',label: 'प्रमुख पदाधिकारी',   sub: 'MP, MLA & Officers', icon: Landmark },
   ],
 };
 

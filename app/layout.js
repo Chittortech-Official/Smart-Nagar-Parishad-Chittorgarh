@@ -14,16 +14,32 @@ const notoDevanagari = Noto_Sans_Devanagari({
 export const metadata = {
   title: 'Smart Chittorgarh | Nagar Parishad Digital Platform',
   description: 'Digital municipal management platform for Chittorgarh Nagar Parishad — connecting citizens, employees, councillors, officers and the Chairman.',
-  keywords: 'Chittorgarh, Nagar Parishad, municipal, complaints, civic, smart city',
-  authors: [{ name: 'Chittorgarh Nagar Parishad' }],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="hi" className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable}`}>
+    <html 
+      lang="hi" 
+      translate="no" 
+      data-scroll-behavior="smooth" 
+      className={`notranslate ${inter.variable} ${poppins.variable} ${notoDevanagari.variable}`}
+    >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>" />
+        <meta name="google" content="notranslate" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.png" type="image/png" />
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body>
         <AuthProvider>

@@ -1696,3 +1696,22 @@ input, select, textarea, button {
     max-width: 420px !important;
   }
 }
+
+/* ================================================================
+   Official Government Loading & Spinner Keyframes
+   ================================================================ */
+@keyframes govSpinContinuous {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gov-spinner-active {
+  animation: govSpinContinuous 0.85s linear infinite !important;
+  display: inline-block !important;
+  transform-origin: center center !important;
+}
+

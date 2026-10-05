@@ -10,8 +10,8 @@ import Link from 'next/link';
 const DEMO_LOGINS = [
   { email: 'citizen@demo.in',  name: 'राजेश कुमार (Rajesh)',  role: 'नागरिक (Citizen)',        type: 'mobile', color: '#0284c7', bg: '#e0f2fe' },
   { email: 'employee@demo.in', name: 'रमेश मीणा (Ramesh)',    role: 'कर्मचारी (Employee)',     type: 'mobile', color: '#16a34a', bg: '#dcfce7' },
-  { email: 'parshad@demo.in',  name: 'कमला बाई (Kamla Bai)',   role: 'वार्ड पार्षद (Councillor)',type: 'mobile', color: '#7c3aed', bg: '#f3e8ff' },
-  { email: 'chairman@demo.in', name: 'श्री प्रेम सिंह जी (Chairman)', role: 'सभापति / चेयरमैन', type: 'laptop', color: '#d97706', bg: '#fef3c7' },
+  { email: 'parshad@demo.in',  name: 'श्रीमती कुसुम (Kusum - Ward 24)', role: 'वार्ड पार्षद (Councillor)',type: 'mobile', color: '#7c3aed', bg: '#f3e8ff' },
+  { email: 'chairman@demo.in', name: 'श्री अनिल जी ईनाणी (Chairman)', role: 'सभापति / चेयरमैन', type: 'laptop', color: '#d97706', bg: '#fef3c7' },
 ];
 
 const ROLE_PATHS = {

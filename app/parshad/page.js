@@ -1,13 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
+import { getSharedLiveComplaints } from '@/lib/citizenService';
 import {
   FileText, Users, CheckCircle, Clock, AlertTriangle,
   MapPin, Phone, ArrowRight, ChevronRight, Image,
-  UserCheck, ShieldCheck
+  UserCheck, ShieldCheck, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -83,7 +85,37 @@ const EMPLOYEES = [
 
 export default function ParshadPage() {
   const { profile } = useAuth();
-  const s = WARD_STATS;
+  const [complaintsList, setComplaintsList] = useState(RECENT_COMPLAINTS);
+  const [s, setStats] = useState(WARD_STATS);
+
+  useEffect(() => {
+    const live = getSharedLiveComplaints(24);
+    if (live && live.length > 0) {
+      const formatted = live.map(c => ({
+        id: c.id || c.code,
+        code: c.code,
+        category: c.category,
+        status: c.status || 'submitted',
+        location: c.location,
+        date: c.date,
+        citizen: c.citizenName || 'नागरिक',
+        photo: !!c.hasPhoto,
+        dept: c.dept,
+        employee: 'आवंटन प्रक्रियाधीन',
+        isNew: true,
+      }));
+      const existingCodes = new Set(RECENT_COMPLAINTS.map(c => c.code));
+      const newItems = formatted.filter(item => !existingCodes.has(item.code));
+      if (newItems.length > 0) {
+        setComplaintsList([...newItems, ...RECENT_COMPLAINTS]);
+        setStats(prev => ({
+          ...prev,
+          total: prev.total + newItems.length,
+          pending: prev.pending + newItems.length,
+        }));
+      }
+    }
+  }, []);
 
   return (
     <DashboardShell requiredRole="parshad">
@@ -108,7 +140,7 @@ export default function ParshadPage() {
               वार्ड पार्षद निगरानी पोर्टल
             </h1>
             <p style={{ fontSize: '0.825rem', color: '#64748b', margin: 0 }}>
-              पार्षद: <strong>{profile?.full_name || 'श्रीमती कमला बाई'}</strong> • नगर परिषद चित्तौड़गढ़
+              पार्षद: <strong>{profile?.full_name || 'श्रीमती कुसुम (भाजपा)'}</strong> • नगर परिषद चित्तौड़गढ़
             </p>
           </div>
           <span className="badge badge-parshad" style={{ fontSize: '0.8rem', padding: '6px 14px' }}>
@@ -163,7 +195,7 @@ export default function ParshadPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {RECENT_COMPLAINTS.map(c => (
+          {complaintsList.map(c => (
             <Link
               key={c.id}
               href={`/parshad/complaints/${c.id}`}

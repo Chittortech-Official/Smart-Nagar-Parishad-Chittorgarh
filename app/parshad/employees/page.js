@@ -141,7 +141,7 @@ export default function ParshadEmployeesPage() {
               वार्ड 24 — फील्ड कर्मचारी दल
             </h1>
             <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
-              पार्षद: {profile?.full_name || 'श्रीमती कमला बाई'} • कुल {EMPLOYEES.length} फील्ड कर्मचारी
+              पार्षद: {profile?.full_name || 'श्रीमती कुसुम (भाजपा)'} • कुल {EMPLOYEES.length} फील्ड कर्मचारी
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

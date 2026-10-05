@@ -66,7 +66,7 @@ export default function AdminPage() {
             <p>चित्तौड़गढ़ नगर परिषद - मास्टर सिस्टम कॉन्फ़िगरेशन, वार्ड एवं यूजर प्रबंधन</p>
           </div>
           <span className="badge badge-chairman" style={{ fontSize: '0.875rem', padding: '8px 18px', background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
-            👑 {profile?.full_name || 'प्रेम सिंह जी (सभापति)'}
+            👑 {profile?.full_name || 'श्री अनिल जी ईनाणी (सभापति)'}
           </span>
         </div>
       </div>

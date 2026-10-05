@@ -12,6 +12,7 @@ import {
   ArrowRight, CheckSquare
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { CHITTORGARH_60_WARDS, PARTY_COLORS } from '@/lib/data/wardsResults';
 
 const CITY_STATS = {
   total: 247, open: 48, inProgress: 63, resolved: 124, overdue: 12,
@@ -35,26 +36,28 @@ const CATEGORY_PIE = [
   { name: 'अन्य समस्याएं', value: 10, color: '#64748b' },
 ];
 
-const WARDS_SAMPLE = Array.from({ length: 60 }, (_, i) => {
-  const baseTotal = ((i * 7 + 11) % 13) + 4;
-  const baseResolved = Math.min(baseTotal - 1, Math.max(1, ((i * 5 + 3) % 9) + 2));
-  const empTotal = ((i * 3 + 2) % 4) + 4;
-  const empPresent = Math.max(empTotal - 1, empTotal - (i % 5 === 0 ? 1 : 0));
+const WARDS_SAMPLE = CHITTORGARH_60_WARDS.map((ward, i) => {
+  const isChair = ward.isChairman;
+  const isVice = ward.isViceChairman;
+  const baseTotal = isChair ? 15 : isVice ? 14 : (((i * 7 + 11) % 13) + 4);
+  const baseResolved = isChair ? 15 : isVice ? 14 : Math.min(baseTotal, Math.max(2, ((i * 5 + 3) % 9) + 2));
+  const empTotal = isChair || isVice ? 7 : (((i * 3 + 2) % 4) + 4);
+  const empPresent = isChair || isVice ? empTotal : Math.max(empTotal - 1, empTotal - (i % 5 === 0 ? 1 : 0));
   return {
-    num: i + 1,
-    name: `वार्ड संख्या ${i + 1}`,
+    ...ward,
+    name: `वार्ड संख्या ${ward.num}`,
     total: baseTotal,
     resolved: baseResolved,
     employees: empTotal,
     present: empPresent,
-    overdue: (i === 7 || i === 14 || i === 31 || i === 44) ? 1 : 0,
+    overdue: 0,
   };
 });
 
 const OVERDUE_COMPLAINTS = [
   { id: 1, code: 'CTNP-2026-000072', category: 'कचरा डिपो उठाव', ward: 8,  dept: 'स्वास्थ्य एवं स्वच्छता', hoursOverdue: 36, officer: 'सुरेश शर्मा' },
-  { id: 2, code: 'CTNP-2026-000061', category: 'मुख्य सड़क गड्ढा', ward: 15, dept: 'निर्माण / इंजीनियरिंग', hoursOverdue: 48, officer: 'इंजीनियर मोहन' },
-  { id: 3, code: 'CTNP-2026-000054', category: 'पेयजल पाइपलाइन लीकेज', ward: 32, dept: 'जल प्रदाय शाखा', hoursOverdue: 12, officer: 'कनिष्ठ अभियंता जल' },
+  { id: 2, code: 'CTNP-2026-000061', category: 'सड़क मरम्मत व पेचवर्क', ward: 42, dept: 'निर्माण / इंजीनियरिंग', hoursOverdue: 24, officer: 'इंजीनियर मोहन' },
+  { id: 3, code: 'CTNP-2026-000054', category: 'पेयजल पाइपलाइन लीकेज', ward: 55, dept: 'जल प्रदाय शाखा', hoursOverdue: 12, officer: 'कनिष्ठ अभियंता जल' },
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -95,7 +98,7 @@ export default function ChairmanPage() {
               🏛️ चित्तौड़गढ़ नगर परिषद — सभापति डैशबोर्ड
             </h1>
             <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
-              समग्र शहर निगरानी • सभापति: <strong>{profile?.full_name || 'श्री प्रेम सिंह जी'}</strong> • समस्त 60 वार्ड
+              समग्र शहर निगरानी • सभापति: <strong>{profile?.full_name || 'श्री अनिल जी ईनाणी'}</strong> • समस्त 60 वार्ड
             </p>
           </div>
           <span className="badge badge-chairman" style={{ fontSize: '0.8125rem', padding: '6px 14px' }}>
@@ -280,25 +283,37 @@ export default function ChairmanPage() {
             <div className="card" style={{ padding: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <button className="btn btn-ghost" onClick={() => setSelectedWard(null)}>← वापस सूची पर</button>
-                <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1e3a8a' }}>
-                  {selectedWard.name} — विस्तृत रिपोर्ट
-                </h2>
-                {selectedWard.overdue > 0 && (
-                  <span className="badge badge-overdue">⚠️ 1 अवधि पार शिकायत</span>
-                )}
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1e3a8a' }}>
+                    वार्ड {selectedWard.num} — पार्षद: {selectedWard.councillor}
+                  </h2>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 3 }}>
+                    <span style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '1px 7px',
+                      borderRadius: 4,
+                      background: PARTY_COLORS[selectedWard.party]?.bg || '#f1f5f9',
+                      color: PARTY_COLORS[selectedWard.party]?.text || '#334155',
+                      border: `1px solid ${PARTY_COLORS[selectedWard.party]?.border || '#cbd5e1'}`,
+                    }}>
+                      {selectedWard.party}
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      {selectedWard.reservation} • जीत अंतर: {selectedWard.margin}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {[
                   ['कुल शिकायतें', selectedWard.total, '#2563eb'],
                   ['समाधान पूर्ण', selectedWard.resolved, '#16a34a'],
                   ['लंबित कार्य', selectedWard.total - selectedWard.resolved, '#d97706'],
-                  ['स्वीकृत सफाईकर्मी', selectedWard.employees, '#7c3aed'],
-                  ['आज उपस्थित', selectedWard.present, '#16a34a'],
-                  ['आज अनुपस्थित', selectedWard.employees - selectedWard.present, '#dc2626'],
                 ].map(([label, val, color]) => (
-                  <div key={label} style={{ textAlign: 'center', padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10 }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color }}>{val}</div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{label}</div>
+                  <div key={label} style={{ textAlign: 'center', padding: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10 }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color }}>{val}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 3 }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -308,36 +323,81 @@ export default function ChairmanPage() {
               <p style={{ marginBottom: 12, color: '#64748b', fontSize: '0.85rem' }}>
                 चित्तौड़गढ़ नगर परिषद के किसी भी वार्ड पर क्लिक करके उसकी लाइव स्थिति देखें:
               </p>
-              <div className="ward-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 8 }}>
-                {WARDS_SAMPLE.map(w => (
-                  <div
-                    key={w.num}
-                    id={`ward-${w.num}`}
-                    onClick={() => setSelectedWard(w)}
-                    style={{
-                      background: '#ffffff',
-                      border: `1.5px solid ${w.overdue > 0 ? '#fca5a5' : '#e2e8f0'}`,
-                      borderRadius: 10,
-                      padding: '10px 6px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-                    }}
-                  >
-                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: w.overdue > 0 ? '#dc2626' : '#1e3a8a' }}>
-                      {w.num}
-                    </div>
-                    <div style={{ fontSize: '0.68rem', color: '#64748b' }}>वार्ड {w.num}</div>
-                    <div style={{ fontSize: '0.65rem', color: '#16a34a', fontWeight: 600, marginTop: 2 }}>
-                      {w.resolved}/{w.total} हल
-                    </div>
-                    {w.overdue > 0 && (
-                      <div style={{ fontSize: '0.6rem', color: '#dc2626', fontWeight: 700, marginTop: 2 }}>
-                        ⚠️ अवधि पार
+              <div className="ward-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))', gap: 10 }}>
+                {WARDS_SAMPLE.map(w => {
+                  const pStyle = PARTY_COLORS[w.party] || { bg: '#f1f5f9', text: '#334155', border: '#cbd5e1' };
+                  const isChair = w.isChairman;
+                  const isVice = w.isViceChairman;
+
+                  let bColor = w.overdue > 0 ? '#fca5a5' : '#e2e8f0';
+                  let bBg = '#ffffff';
+                  if (isChair) { bColor = '#f59e0b'; bBg = '#fffbeb'; }
+                  else if (isVice) { bColor = '#3b82f6'; bBg = '#eff6ff'; }
+
+                  return (
+                    <div
+                      key={w.num}
+                      id={`ward-${w.num}`}
+                      onClick={() => setSelectedWard(w)}
+                      style={{
+                        background: bBg,
+                        border: `2px solid ${bColor}`,
+                        borderRadius: 10,
+                        padding: '10px 8px',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                        transition: 'all 0.15s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        minHeight: '120px',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = isChair ? '#b45309' : isVice ? '#1d4ed8' : '#1e3a8a'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = bColor; e.currentTarget.style.transform = ''; }}
+                    >
+                      {isChair && (
+                        <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#b45309', background: '#fef3c7', padding: '1px 4px', borderRadius: 4, marginBottom: 4 }}>
+                          👑 सभापति (Chairman)
+                        </div>
+                      )}
+                      {isVice && (
+                        <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#1d4ed8', background: '#dbeafe', padding: '1px 4px', borderRadius: 4, marginBottom: 4 }}>
+                          ⭐ उपसभापति (Vice Chairman)
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                        <span style={{ fontSize: '1.15rem', fontWeight: 900, color: isChair ? '#b45309' : isVice ? '#1d4ed8' : (w.overdue > 0 ? '#dc2626' : '#1e3a8a') }}>
+                          {w.num}
+                        </span>
+                        <span style={{
+                          fontSize: '0.62rem',
+                          fontWeight: 700,
+                          padding: '1px 5px',
+                          borderRadius: 4,
+                          background: pStyle.bg,
+                          color: pStyle.text,
+                          border: `1px solid ${pStyle.border}`,
+                        }}>
+                          {w.party}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div style={{
+                        fontSize: '0.8rem',
+                        fontWeight: 800,
+                        color: '#0f172a',
+                        lineHeight: 1.4,
+                        padding: '1px 0',
+                        marginBottom: 4,
+                      }} title={w.councillor}>
+                        {w.councillor}
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: '#16a34a', fontWeight: 700, marginTop: 'auto' }}>
+                        {w.resolved}/{w.total} हल
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

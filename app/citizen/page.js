@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import CitizenOnboarding from '@/components/CitizenOnboarding';
+import GovLoadingScreen from '@/components/GovLoadingScreen';
 import {
   getStoredCitizenProfile,
   getCitizenComplaints,
@@ -80,12 +81,18 @@ export default function CitizenPage() {
   const [complaintList, setComplaintList] = useState([]);
 
   useEffect(() => {
-    setMounted(true);
+    // Keep official emblem loading screen visible for at least 2.2s for authentic state presence
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 2200);
+
     const stored = getStoredCitizenProfile();
     if (stored) {
       setCitizen(stored);
       getCitizenComplaints(stored.phone).then(list => setComplaintList(list));
     }
+
+    return () => clearTimeout(timer);
   }, []);
 
   function handleOnboardSuccess(profile) {
@@ -103,10 +110,8 @@ export default function CitizenPage() {
 
   if (!mounted) {
     return (
-      <DashboardShell requiredRole="citizen">
-        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ color: '#64748b', fontSize: '0.875rem' }}>नागरिक पोर्टल लोड हो रहा है...</div>
-        </div>
+      <DashboardShell requiredRole="citizen" hideBottomNav={true}>
+        <GovLoadingScreen message="नागरिक पोर्टल लोड हो रहा है..." />
       </DashboardShell>
     );
   }
@@ -401,7 +406,7 @@ export default function CitizenPage() {
                 <div>
                   <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड पार्षद</div>
                   <strong style={{ color: '#0f172a' }}>
-                    {citizen.ward === '24' ? 'श्रीमती कमला बाई' : `पार्षद प्रतिनिधि (वार्ड ${citizen.ward})`}
+                    {citizen.ward === '24' ? 'श्रीमती कुसुम (भाजपा)' : `पार्षद प्रतिनिधि (वार्ड ${citizen.ward})`}
                   </strong>
                 </div>
                 <span style={{ fontSize: '0.72rem', background: '#f3e8ff', color: '#7c3aed', padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>

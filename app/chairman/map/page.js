@@ -7,7 +7,7 @@ export default function ChairmanMapRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/chairman');
+    router.replace('/chairman/authorities');
   }, [router]);
 
   return (

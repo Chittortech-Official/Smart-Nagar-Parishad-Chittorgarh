@@ -2,13 +2,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import GovLoadingScreen from '@/components/GovLoadingScreen';
 
 export default function RootPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Primary main landing page is the Citizen Portal
-    router.replace('/citizen');
+    // Primary main landing page is the Citizen Portal - display emblem for at least 2.2s
+    const timer = setTimeout(() => {
+      router.replace('/citizen');
+    }, 2200);
+    return () => clearTimeout(timer);
   }, [router]);
 
   return (
@@ -16,29 +20,14 @@ export default function RootPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      height: '100vh',
+      minHeight: '100vh',
       background: '#f8fafc',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: 32,
-          height: 32,
-          border: '3px solid #cbd5e1',
-          borderTopColor: '#1e3a8a',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-          margin: '0 auto 12px'
-        }} />
-        <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
-          नगर परिषद चित्तौड़गढ़ नागरिक पोर्टल लोड हो रहा है...
-        </p>
-      </div>
-      <style jsx>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <GovLoadingScreen
+        message="नगर परिषद चित्तौड़गढ़ पोर्टल लोड हो रहा है..."
+        subtext="स्वायत्त शासन विभाग, राजस्थान सरकार"
+      />
     </div>
   );
 }
+
