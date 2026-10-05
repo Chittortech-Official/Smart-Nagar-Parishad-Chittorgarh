@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { CHITTORGARH_60_WARDS, PARTY_COLORS } from '@/lib/data/wardsResults';
-import { getSharedLiveComplaints } from '@/lib/citizenService';
+import { getSharedLiveComplaints, fetchSharedLiveComplaints, subscribeToLiveComplaints } from '@/lib/citizenService';
 
 // Enhance the official election results with clean municipal complaint stats (no safai karmi)
 const WARDS_DATA = CHITTORGARH_60_WARDS.map((w, i) => {
@@ -118,8 +118,8 @@ export default function ChairmanWardsPage() {
   const [liveWard24, setLiveWard24] = useState({ total: 0, resolved: 0, pending: 0, list: [] });
 
   useEffect(() => {
-    function syncLive() {
-      const live = getSharedLiveComplaints(24) || [];
+    function syncLive(liveList) {
+      const live = liveList || getSharedLiveComplaints(24) || [];
       const total = live.length;
       const resolved = live.filter(c => c.status === 'resolved' || c.status === 'closed').length;
       const pending = total - resolved;
@@ -137,9 +137,25 @@ export default function ChairmanWardsPage() {
       }));
       setLiveWard24({ total, resolved, pending, list: formatted });
     }
-    syncLive();
-    window.addEventListener('storage', syncLive);
-    return () => window.removeEventListener('storage', syncLive);
+
+    // 1. Initial cached sync
+    syncLive(getSharedLiveComplaints(24));
+
+    // 2. Fetch fresh live from Supabase
+    fetchSharedLiveComplaints(24).then(fresh => {
+      if (fresh) syncLive(fresh);
+    });
+
+    // 3. Real-time subscription
+    const unsubscribe = subscribeToLiveComplaints((all) => {
+      const cleanW = '24';
+      const filtered = (all || []).filter(c => String(c.ward || c.wardNumber || '').replace(/\D/g, '') === cleanW);
+      syncLive(filtered);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const filteredWards = useMemo(() => {

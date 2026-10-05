@@ -5,7 +5,7 @@ import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
-import { getSharedLiveComplaints } from '@/lib/citizenService';
+import { getSharedLiveComplaints, fetchSharedLiveComplaints, subscribeToLiveComplaints } from '@/lib/citizenService';
 import {
   MapPin, ArrowLeft, Filter, Search,
   ChevronRight, Image, Phone, Sparkles
@@ -21,9 +21,8 @@ export default function ParshadComplaintsPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    function refreshComplaints() {
-      const live = getSharedLiveComplaints(24) || [];
-      const formatted = live.map(c => ({
+    function formatAndSet(live) {
+      const formatted = (live || []).map(c => ({
         id: c.id || c.code,
         code: c.code,
         category: c.category,
@@ -41,9 +40,25 @@ export default function ParshadComplaintsPage() {
       }));
       setAllComplaints(formatted);
     }
-    refreshComplaints();
-    window.addEventListener('storage', refreshComplaints);
-    return () => window.removeEventListener('storage', refreshComplaints);
+
+    // 1. Initial cached load
+    formatAndSet(getSharedLiveComplaints(24));
+
+    // 2. Fresh live fetch from Supabase
+    fetchSharedLiveComplaints(24).then(fresh => {
+      if (fresh) formatAndSet(fresh);
+    });
+
+    // 3. Live real-time subscription
+    const unsubscribe = subscribeToLiveComplaints((all) => {
+      const cleanW = '24';
+      const filtered = (all || []).filter(c => String(c.ward || c.wardNumber || '').replace(/\D/g, '') === cleanW);
+      formatAndSet(filtered);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const filtered = allComplaints.filter(c => {

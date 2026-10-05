@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getSharedLiveComplaints } from '@/lib/citizenService';
+import { getSharedLiveComplaints, fetchSharedLiveComplaints, subscribeToLiveComplaints } from '@/lib/citizenService';
 import {
   LayoutDashboard, ClipboardList, Users,
   MapPin
@@ -14,8 +14,19 @@ export default function ParshadNavTabs() {
   const [complaintCount, setComplaintCount] = useState(0);
 
   useEffect(() => {
-    const live = getSharedLiveComplaints(24) || [];
-    setComplaintCount(live.length);
+    function updateCount(live) {
+      setComplaintCount(live ? live.length : 0);
+    }
+    updateCount(getSharedLiveComplaints(24));
+    fetchSharedLiveComplaints(24).then(fresh => {
+      if (fresh) updateCount(fresh);
+    });
+    const unsubscribe = subscribeToLiveComplaints((all) => {
+      const cleanW = '24';
+      const filtered = (all || []).filter(c => String(c.ward || c.wardNumber || '').replace(/\D/g, '') === cleanW);
+      updateCount(filtered);
+    });
+    return () => unsubscribe();
   }, []);
 
   const TABS = [

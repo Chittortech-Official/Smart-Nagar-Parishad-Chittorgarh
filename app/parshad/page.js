@@ -6,7 +6,7 @@ import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
 import GovLoadingScreen from '@/components/GovLoadingScreen';
 import { useAuth } from '@/lib/authContext';
-import { getSharedLiveComplaints } from '@/lib/citizenService';
+import { getSharedLiveComplaints, fetchSharedLiveComplaints, subscribeToLiveComplaints } from '@/lib/citizenService';
 import {
   FileText, Users, CheckCircle, Clock, AlertTriangle,
   MapPin, Phone, ArrowRight, ChevronRight, Image,
@@ -41,9 +41,8 @@ export default function ParshadPage() {
   const [s, setStats] = useState(INITIAL_WARD_STATS);
 
   useEffect(() => {
-    function loadWardData() {
-      const live = getSharedLiveComplaints(24) || [];
-      const formatted = live.map(c => ({
+    function formatAndSet(live) {
+      const formatted = (live || []).map(c => ({
         id: c.id || c.code,
         code: c.code,
         category: c.category,
@@ -69,9 +68,25 @@ export default function ParshadPage() {
         employees: { total: 6, present: 5, absent: 1 },
       });
     }
-    loadWardData();
-    window.addEventListener('storage', loadWardData);
-    return () => window.removeEventListener('storage', loadWardData);
+
+    // 1. Initial cached load
+    formatAndSet(getSharedLiveComplaints(24));
+
+    // 2. Fetch fresh live data from Supabase
+    fetchSharedLiveComplaints(24).then(fresh => {
+      if (fresh) formatAndSet(fresh);
+    });
+
+    // 3. Subscribe to real-time events & storage updates
+    const unsubscribe = subscribeToLiveComplaints((all) => {
+      const cleanW = '24';
+      const filtered = (all || []).filter(c => String(c.ward || c.wardNumber || '').replace(/\D/g, '') === cleanW);
+      formatAndSet(filtered);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (
