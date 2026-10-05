@@ -194,69 +194,68 @@ export default function CitizenPage() {
         </Link>
       </div>
 
-      {/* 2.5 Sabhapati Meeting / Appointment Booking Card */}
+      {/* 2.5 Sabhapati Meeting Booking Banner */}
       <Link
         href="/citizen/appointment"
         id="sabhapati-appointment-btn"
+        className="card"
         style={{
-          background: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)',
-          borderRadius: 14,
-          padding: '14px 16px',
+          background: '#ffffff',
+          borderRadius: 12,
+          padding: '11px 14px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 12,
+          gap: 10,
           textDecoration: 'none',
-          color: '#ffffff',
-          boxShadow: '0 4px 14px rgba(30, 58, 138, 0.22)',
-          marginBottom: 16,
-          border: '1.5px solid #f59e0b',
+          marginBottom: 14,
+          border: '1.5px solid #bfdbfe',
+          boxShadow: '0 2px 6px rgba(30, 58, 138, 0.05)',
           transition: 'all 0.15s ease',
         }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#2563eb'; e.currentTarget.style.background = '#f0f9ff'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.background = '#ffffff'; }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <div style={{
-            width: 44, height: 44,
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-            borderRadius: 10,
+            width: 36,
+            height: 36,
+            borderRadius: 9,
+            background: '#eff6ff',
+            color: '#1e40af',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.4)',
+            border: '1px solid #bfdbfe',
           }}>
-            <Crown size={22} color="#ffffff" />
+            <Crown size={18} color="#1e3a8a" />
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 800, fontSize: '0.98rem', color: '#ffffff' }}>
-                सभापति जी से व्यक्तिगत भेंट / जनसुनवाई
-              </span>
-              <span style={{ fontSize: '0.68rem', background: '#f59e0b', color: '#78350f', padding: '1px 6px', borderRadius: 4, fontWeight: 900 }}>
-                ई-अपॉइंटमेंट
-              </span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#1e3a8a', lineHeight: 1.2 }}>
+              सभापति जी से भेंट
             </div>
-            <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: 2 }}>
-              सभापति श्री अनिल जी ईनाणी के समक्ष व्यक्तिगत प्रकरण प्रस्तुत करने हेतु टोकन लें
+            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              श्री अनिल जी ईनाणी (जनसुनवाई)
             </div>
           </div>
         </div>
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.15)',
-          borderRadius: 8,
-          padding: '6px 12px',
-          fontSize: '0.78rem',
-          fontWeight: 700,
+
+        <span style={{
+          background: '#1e3a8a',
           color: '#ffffff',
-          display: 'flex',
+          padding: '6px 12px',
+          borderRadius: 8,
+          fontSize: '0.74rem',
+          fontWeight: 700,
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+          display: 'inline-flex',
           alignItems: 'center',
           gap: 4,
-          flexShrink: 0,
         }}>
-          अनुरोध करें <ChevronRight size={14} />
-        </div>
+          टोकन लें <ArrowRight size={13} />
+        </span>
       </Link>
 
       {/* 3. Main Action Touch Cards */}
