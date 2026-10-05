@@ -340,16 +340,16 @@ a:hover { color: var(--accent-600); }
 .mobile-app-main {
   flex: 1;
   margin-left: 0 !important;
-  padding-top: 76px; /* On mobile: 57px header + 19px clean spacing */
-  padding-bottom: 120px; /* Generous bottom spacing: keeps all content and buttons clear above bottom navigation bar */
+  padding-top: 72px; /* 56px fixed header + 16px clean breathing room */
+  padding-bottom: calc(var(--mobile-nav-height) + 16px); /* 64px + 16px = 80px: exact 16px neat gap right above fixed bottom nav */
   background-color: var(--bg-primary);
-  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .mobile-app-main {
-    padding-top: 114px; /* On desktop: 97px fixed header + 17px clean spacing - ensures top content is never cut off */
-    padding-bottom: 60px;
+    padding-top: 114px; /* On desktop: 97px fixed header + 17px clean spacing */
+    padding-bottom: 32px;
   }
 }
 
@@ -363,13 +363,13 @@ a:hover { color: var(--accent-600); }
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  padding: 12px 14px 24px;
+  padding: 12px 14px 0px;
 }
 
 @media (min-width: 768px) {
   .mobile-container {
     max-width: 1240px;
-    padding: 24px 32px 48px;
+    padding: 24px 32px 24px;
   }
 }
 

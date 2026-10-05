@@ -329,7 +329,7 @@ export default function ReportPage() {
 
         {/* STEP 2: Responsive Form (1 Column Mobile, 2 Column Desktop) */}
         {step === 2 && selectedCategory && (
-          <div className="card" style={{ padding: '20px 16px', background: '#ffffff', marginBottom: '40px' }}>
+          <div className="card" style={{ padding: '20px 16px', background: '#ffffff', marginBottom: '16px' }}>
             <div className="report-form-grid">
               {/* Left Column: Category Summary & Ward Location */}
               <div>
