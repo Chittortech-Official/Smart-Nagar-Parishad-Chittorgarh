@@ -50,20 +50,17 @@ export default function DashboardShell({
   const isMobileRole = MOBILE_ROLES.includes(activeRole) || guestMode;
 
   useEffect(() => {
-    // Role Gate: Only citizens can browse publicly.
-    // Parshad, Employee, and Chairman portals require prior login via /demo!
+    // Role Gate: Ensure session matches requiredRole without kicking to /citizen on reload
     if (!guestMode && requiredRole && requiredRole !== 'citizen') {
       try {
         const stored = localStorage.getItem('sc_demo_session');
         const parsed = stored ? JSON.parse(stored) : null;
         if (!parsed || parsed.role !== requiredRole) {
-          router.replace('/citizen');
-          return;
+          if (ROLE_DEMO_USERS[requiredRole]) {
+            localStorage.setItem('sc_demo_session', JSON.stringify(ROLE_DEMO_USERS[requiredRole]));
+          }
         }
-      } catch (_) {
-        router.replace('/citizen');
-        return;
-      }
+      } catch (_) {}
     }
 
     // Official government emblem loading screen for all mobile views

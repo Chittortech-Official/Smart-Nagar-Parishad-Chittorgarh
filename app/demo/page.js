@@ -204,47 +204,6 @@ export default function DemoLoginPage() {
                 </button>
               ))}
             </div>
-
-            {/* Quick Reset for Ward 24 Live Testing */}
-            <div style={{ marginTop: 12, textAlign: 'center' }}>
-              <button
-                type="button"
-                onClick={handleResetWard24}
-                style={{
-                  background: '#f8fafc',
-                  border: '1px dashed #cbd5e1',
-                  borderRadius: 8,
-                  padding: '6px 14px',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#475569',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#0f172a'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#475569'; }}
-              >
-                🔄 वार्ड 24 टेस्ट डेटा रीसेट (Reset Ward 24 to 0 Complaints)
-              </button>
-
-              {resetMsg && (
-                <div style={{
-                  marginTop: 8,
-                  background: '#ecfdf5',
-                  border: '1px solid #a7f3d0',
-                  color: '#047857',
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                }}>
-                  {resetMsg}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Standard Form */}

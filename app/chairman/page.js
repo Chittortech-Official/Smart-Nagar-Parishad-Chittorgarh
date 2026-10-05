@@ -39,8 +39,9 @@ const CATEGORY_PIE = [
 const WARDS_SAMPLE = CHITTORGARH_60_WARDS.map((ward, i) => {
   const isChair = ward.isChairman;
   const isVice = ward.isViceChairman;
-  const baseTotal = isChair ? 15 : isVice ? 14 : (((i * 7 + 11) % 13) + 4);
-  const baseResolved = isChair ? 15 : isVice ? 14 : Math.min(baseTotal, Math.max(2, ((i * 5 + 3) % 9) + 2));
+  const isWard24 = ward.num === 24;
+  const baseTotal = isChair ? 15 : isVice ? 14 : isWard24 ? 0 : (((i * 7 + 11) % 13) + 4);
+  const baseResolved = isChair ? 15 : isVice ? 14 : isWard24 ? 0 : Math.min(baseTotal, Math.max(2, ((i * 5 + 3) % 9) + 2));
   const empTotal = isChair || isVice ? 7 : (((i * 3 + 2) % 4) + 4);
   const empPresent = isChair || isVice ? empTotal : Math.max(empTotal - 1, empTotal - (i % 5 === 0 ? 1 : 0));
   return {

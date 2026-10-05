@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import {
   MapPin, ArrowLeft, Users, CheckCircle, Clock, AlertTriangle,
@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { CHITTORGARH_60_WARDS, PARTY_COLORS } from '@/lib/data/wardsResults';
-import { INITIAL_COMPLAINTS } from '@/lib/data/routerData';
 import { getSharedLiveComplaints } from '@/lib/citizenService';
 
 // Enhance the official election results with clean municipal complaint stats (no safai karmi)
@@ -28,8 +27,8 @@ const WARDS_DATA = CHITTORGARH_60_WARDS.map((w, i) => {
     baseTotal = 14;
     baseResolved = 14; // 100% resolved for Vice Chairman Sudarshan Rampuriya
   } else if (isWard24) {
-    baseTotal = 5;
-    baseResolved = 3;  // Ward 24 Demo: 3 resolved, 2 pending
+    baseTotal = 0;
+    baseResolved = 0;  // Ward 24 is 100% LIVE citizen testing — ZERO fake data!
   }
 
   return {
@@ -44,84 +43,88 @@ const WARDS_DATA = CHITTORGARH_60_WARDS.map((w, i) => {
 
 // Helper to generate or fetch realistic complaints for any selected ward
 function getWardComplaintsList(ward) {
-  let baseList = [];
   if (ward.num === 24) {
-    // Official Ward 24 demo complaints
-    baseList = [
-      ...INITIAL_COMPLAINTS.filter(c => c.wardNum === 24).map(c => ({
-        id: c.code,
-        category: c.category,
-        location: c.location,
-        date: c.date,
-        citizen: c.citizen,
-        citizenPhone: c.citizenPhone,
-        description: c.description,
-        dept: c.suggestedDept || c.routedDept || 'स्वास्थ्य एवं स्वच्छता शाखा',
-        status: c.status === 'resolved' ? 'resolved' : 'pending',
-      })),
-      {
-        id: 'CTNP-2026-000098',
-        category: 'पेयजल लीकेज मरम्मत',
-        location: 'गली नं. 4, मकान सं. 12 के सामने',
-        date: '28 सितं 2026, 10:00 AM',
-        citizen: 'राधेश्याम धाकड़',
-        citizenPhone: '98290-44556',
-        description: 'जल प्रदाय पाइपलाइन से लगातार जल रिसाव हो रहा था, तकनीकी दल द्वारा वाल्व बदलकर समस्या का पूर्ण निस्तारण कर दिया गया है।',
-        dept: 'जल प्रदाय शाखा',
-        status: 'resolved',
-      },
-    ];
-  } else {
-    // Realistic complaints generator for any other ward clicked (e.g. Ward 20 Sandeep Singh, Ward 15 Anil Inani)
-    const categories = [
-      { cat: 'कचरा पात्र एवं नाली सफाई', dept: 'स्वास्थ्य एवं स्वच्छता शाखा', desc: 'मुख्य तिराहे पर कचरा जमा होने की सूचना पर स्वच्छता दल भेजकर त्वरित सफाई करवाई गई।' },
-      { cat: 'स्ट्रीट लाइट मरम्मत', dept: 'विद्युत अनुभाग (स्ट्रीट लाइट)', desc: 'मोहल्ले के खंभे की लाइट बंद होने की शिकायत दर्ज हुई, नया एलईडी बल्ब लगाकर चालू किया गया।' },
-      { cat: 'सड़क पेचवर्क एवं मरम्मत', dept: 'निर्माण एवं इंजीनियरिंग शाखा', desc: 'सड़क पर बने गड्ढे से आवागमन बाधित था, डामरीकरण पेचवर्क कर दुरुस्त किया गया।' },
-      { cat: 'पेयजल पाइपलाइन रिसाव', dept: 'जल प्रदाय शाखा', desc: 'सड़क किनारे पाइपलाइन में रिसाव की शिकायत पर वाल्व एवं पाइप रिपेयर किया गया।' },
-      { cat: 'पार्क एवं वृक्ष छंटाई', dept: 'उद्यान विकास शाखा', desc: 'विद्युत तारों को छूती पेड़ों की शाखाओं की सुरक्षित कटाई एवं छंटाई करवाई गई।' },
-    ];
-
-    const citizens = ['सुरेश मेनारिया', 'मुकेश कुमावत', 'गोपाल शर्मा', 'संजय जैन', 'सुनील खटीक', 'कैलाश गुर्जर', 'राधेश्याम तेली', 'अशोक सोनी'];
-    const locations = [
-      `वार्ड ${ward.num} मुख्य बाजार`,
-      `वार्ड ${ward.num} न्यू कॉलोनी, गली नं. 3`,
-      `वार्ड ${ward.num} राजकीय विद्यालय के पास`,
-      `वार्ड ${ward.num} सामुदायिक भवन परिसर`,
-      `वार्ड ${ward.num} माताजी मंदिर रोड`,
-      `वार्ड ${ward.num} बस स्टैंड चौराहा`,
-    ];
-
-    const list = [];
-    const totalCount = ward.total;
-    const resolvedCount = ward.resolved;
-
-    for (let i = 0; i < totalCount; i++) {
-      const isResolved = i < resolvedCount;
-      const catObj = categories[i % categories.length];
-      const codeNum = String(1000 + ward.num * 23 + i).slice(-4);
-      const day = Math.max(1, 30 - i * 2);
-
-      list.push({
-        id: `CTNP-2026-00${codeNum}`,
-        category: catObj.cat,
-        dept: catObj.dept,
-        location: locations[i % locations.length],
-        date: `${day} सितं 2026, ${10 + (i % 8)}:30 AM`,
-        citizen: citizens[(ward.num + i) % citizens.length],
-        citizenPhone: `98290-${String(30000 + ward.num * 100 + i).slice(0, 5)}`,
-        description: catObj.desc,
-        status: isResolved ? 'resolved' : 'pending',
-      });
-    }
-    baseList = list;
+    // Ward 24 is 100% LIVE citizen testing — ZERO fake data!
+    try {
+      const live = getSharedLiveComplaints(24);
+      if (live && live.length > 0) {
+        return live.map(c => ({
+          id: c.code || `CTNP-2026-${c.id}`,
+          category: c.category,
+          location: c.location,
+          date: c.date,
+          citizen: c.citizenName || 'नागरिक',
+          citizenPhone: c.citizenPhone || '98290-00000',
+          description: c.description || 'नागरिक द्वारा दर्ज शिकायत',
+          dept: c.dept || 'स्वास्थ्य एवं स्वच्छता शाखा',
+          status: c.status === 'resolved' ? 'resolved' : 'pending',
+          isLive: true,
+        }));
+      }
+    } catch (_) {}
+    return [];
   }
 
-  // Prepend live citizen complaints if submitted via /citizen
-  try {
-    const live = getSharedLiveComplaints(ward.num);
-    if (live && live.length > 0) {
-      const liveMapped = live.map(c => ({
-        id: c.code,
+  // Realistic complaints generator for any other ward clicked (e.g. Ward 20 Sandeep Singh, Ward 15 Anil Inani)
+  const categories = [
+    { cat: 'कचरा पात्र एवं नाली सफाई', dept: 'स्वास्थ्य एवं स्वच्छता शाखा', desc: 'मुख्य तिराहे पर कचरा जमा होने की सूचना पर स्वच्छता दल भेजकर त्वरित सफाई करवाई गई।' },
+    { cat: 'स्ट्रीट लाइट मरम्मत', dept: 'विद्युत अनुभाग (स्ट्रीट लाइट)', desc: 'मोहल्ले के खंभे की लाइट बंद होने की शिकायत दर्ज हुई, नया एलईडी बल्ब लगाकर चालू किया गया।' },
+    { cat: 'सड़क पेचवर्क एवं मरम्मत', dept: 'निर्माण एवं इंजीनियरिंग शाखा', desc: 'सड़क पर बने गड्ढे से आवागमन बाधित था, डामरीकरण पेचवर्क कर दुरुस्त किया गया।' },
+    { cat: 'पेयजल पाइपलाइन रिसाव', dept: 'जल प्रदाय शाखा', desc: 'सड़क किनारे पाइपलाइन में रिसाव की शिकायत पर वाल्व एवं पाइप रिपेयर किया गया।' },
+    { cat: 'पार्क एवं वृक्ष छंटाई', dept: 'उद्यान विकास शाखा', desc: 'विद्युत तारों को छूती पेड़ों की शाखाओं की सुरक्षित कटाई एवं छंटाई करवाई गई।' },
+  ];
+
+  const citizens = ['सुरेश मेनारिया', 'मुकेश कुमावत', 'गोपाल शर्मा', 'संजय जैन', 'सुनील खटीक', 'कैलाश गुर्जर', 'राधेश्याम तेली', 'अशोक सोनी'];
+  const locations = [
+    `वार्ड ${ward.num} मुख्य बाजार`,
+    `वार्ड ${ward.num} न्यू कॉलोनी, गली नं. 3`,
+    `वार्ड ${ward.num} राजकीय विद्यालय के पास`,
+    `वार्ड ${ward.num} सामुदायिक भवन परिसर`,
+    `वार्ड ${ward.num} माताजी मंदिर रोड`,
+    `वार्ड ${ward.num} बस स्टैंड चौराहा`,
+  ];
+
+  const list = [];
+  const totalCount = ward.total;
+  const resolvedCount = ward.resolved;
+
+  for (let i = 0; i < totalCount; i++) {
+    const isResolved = i < resolvedCount;
+    const catObj = categories[i % categories.length];
+    const codeNum = String(1000 + ward.num * 23 + i).slice(-4);
+    const day = Math.max(1, 30 - i * 2);
+
+    list.push({
+      id: `CTNP-2026-00${codeNum}`,
+      category: catObj.cat,
+      dept: catObj.dept,
+      location: locations[i % locations.length],
+      date: `${day} सितं 2026, ${10 + (i % 8)}:30 AM`,
+      citizen: citizens[(ward.num + i) % citizens.length],
+      citizenPhone: `98290-${String(30000 + ward.num * 100 + i).slice(0, 5)}`,
+      description: catObj.desc,
+      status: isResolved ? 'resolved' : 'pending',
+    });
+  }
+
+  return list;
+}
+
+export default function ChairmanWardsPage() {
+  const [selectedWard, setSelectedWard] = useState(null);
+  const [filterParty, setFilterParty] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [complaintTab, setComplaintTab] = useState('ALL'); // 'ALL' | 'PENDING' | 'RESOLVED'
+  const [liveWard24, setLiveWard24] = useState({ total: 0, resolved: 0, pending: 0, list: [] });
+
+  useEffect(() => {
+    function syncLive() {
+      const live = getSharedLiveComplaints(24) || [];
+      const total = live.length;
+      const resolved = live.filter(c => c.status === 'resolved' || c.status === 'closed').length;
+      const pending = total - resolved;
+      const formatted = live.map(c => ({
+        id: c.code || `CTNP-2026-${c.id}`,
         category: c.category,
         location: c.location,
         date: c.date,
@@ -130,22 +133,14 @@ function getWardComplaintsList(ward) {
         description: c.description || 'नागरिक द्वारा दर्ज शिकायत',
         dept: c.dept || 'स्वास्थ्य एवं स्वच्छता शाखा',
         status: c.status === 'resolved' ? 'resolved' : 'pending',
-        isNew: true,
+        isLive: true,
       }));
-      const existing = new Set(baseList.map(b => b.id));
-      const fresh = liveMapped.filter(m => !existing.has(m.id));
-      return [...fresh, ...baseList];
+      setLiveWard24({ total, resolved, pending, list: formatted });
     }
-  } catch (_) {}
-
-  return baseList;
-}
-
-export default function ChairmanWardsPage() {
-  const [selectedWard, setSelectedWard] = useState(null);
-  const [filterParty, setFilterParty] = useState('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [complaintTab, setComplaintTab] = useState('ALL'); // 'ALL' | 'PENDING' | 'RESOLVED'
+    syncLive();
+    window.addEventListener('storage', syncLive);
+    return () => window.removeEventListener('storage', syncLive);
+  }, []);
 
   const filteredWards = useMemo(() => {
     return WARDS_DATA.filter(w => {
@@ -177,13 +172,26 @@ export default function ChairmanWardsPage() {
     };
   }, []);
 
+  const selectedWardStats = useMemo(() => {
+    if (!selectedWard) return { total: 0, resolved: 0, pending: 0 };
+    if (selectedWard.num === 24) {
+      return { total: liveWard24.total, resolved: liveWard24.resolved, pending: liveWard24.pending };
+    }
+    return { total: selectedWard.total, resolved: selectedWard.resolved, pending: selectedWard.pending };
+  }, [selectedWard, liveWard24]);
+
   const wardComplaints = useMemo(() => {
     if (!selectedWard) return [];
+    if (selectedWard.num === 24) {
+      if (complaintTab === 'RESOLVED') return liveWard24.list.filter(c => c.status === 'resolved');
+      if (complaintTab === 'PENDING') return liveWard24.list.filter(c => c.status === 'pending');
+      return liveWard24.list;
+    }
     const list = getWardComplaintsList(selectedWard);
     if (complaintTab === 'RESOLVED') return list.filter(c => c.status === 'resolved');
     if (complaintTab === 'PENDING') return list.filter(c => c.status === 'pending');
     return list;
-  }, [selectedWard, complaintTab]);
+  }, [selectedWard, complaintTab, liveWard24]);
 
   return (
     <DashboardShell requiredRole="chairman">
@@ -260,11 +268,6 @@ export default function ChairmanWardsPage() {
                         <Star size={14} /> उपसभापति (VICE CHAIRMAN)
                       </span>
                     )}
-                    {selectedWard.num === 24 && (
-                      <span style={{ background: '#ecfdf5', color: '#047857', border: '1.5px solid #6ee7b7', fontSize: '0.75rem', fontWeight: 800, padding: '2px 9px', borderRadius: 9999 }}>
-                        ⭐ डेमो वार्ड (Showcase Ward)
-                      </span>
-                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
                     <span style={{
@@ -303,15 +306,15 @@ export default function ChairmanWardsPage() {
           {/* 3 Clean Complaint KPI Counters (No Safai Karmi) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
             <div style={{ textAlign: 'center', padding: '16px 12px', background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 10 }}>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1e3a8a' }}>{selectedWard.total}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1e3a8a' }}>{selectedWardStats.total}</div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', marginTop: 2 }}>कुल नागरिक शिकायतें</div>
             </div>
             <div style={{ textAlign: 'center', padding: '16px 12px', background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: 10 }}>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#15803d' }}>{selectedWard.resolved}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#15803d' }}>{selectedWardStats.resolved}</div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#16a34a', marginTop: 2 }}>सफलतापूर्वक निस्तारित</div>
             </div>
             <div style={{ textAlign: 'center', padding: '16px 12px', background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: 10 }}>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#b45309' }}>{selectedWard.pending}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#b45309' }}>{selectedWardStats.pending}</div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#d97706', marginTop: 2 }}>लंबित / प्रगति पर</div>
             </div>
           </div>
@@ -354,7 +357,7 @@ export default function ChairmanWardsPage() {
                     borderColor: complaintTab === 'ALL' ? '#1e3a8a' : '#cbd5e1',
                   }}
                 >
-                  सभी ({selectedWard.total})
+                  सभी ({selectedWardStats.total})
                 </button>
                 <button
                   onClick={() => setComplaintTab('RESOLVED')}
@@ -370,7 +373,7 @@ export default function ChairmanWardsPage() {
                     borderColor: complaintTab === 'RESOLVED' ? '#16a34a' : '#cbd5e1',
                   }}
                 >
-                  निस्तारित ({selectedWard.resolved})
+                  निस्तारित ({selectedWardStats.resolved})
                 </button>
                 <button
                   onClick={() => setComplaintTab('PENDING')}
@@ -386,7 +389,7 @@ export default function ChairmanWardsPage() {
                     borderColor: complaintTab === 'PENDING' ? '#d97706' : '#cbd5e1',
                   }}
                 >
-                  लंबित ({selectedWard.pending})
+                  लंबित ({selectedWardStats.pending})
                 </button>
               </div>
             </div>
@@ -445,8 +448,8 @@ export default function ChairmanWardsPage() {
               ))}
 
               {wardComplaints.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '30px 16px', color: '#64748b', fontSize: '0.85rem' }}>
-                  इस श्रेणी में कोई शिकायत नहीं है।
+                <div style={{ textAlign: 'center', padding: '36px 16px', color: '#64748b', fontSize: '0.88rem' }}>
+                  वार्ड संख्या {selectedWard.num} में वर्तमान में कोई शिकायत दर्ज नहीं है।
                 </div>
               )}
             </div>
@@ -603,10 +606,11 @@ export default function ChairmanWardsPage() {
                 cardBg = 'linear-gradient(180deg, #eff6ff 0%, #ffffff 100%)';
                 cardBorder = '#3b82f6';
                 cardShadow = '0 3px 10px rgba(59, 130, 246, 0.18)';
-              } else if (w.num === 24) {
-                cardBorder = '#10b981';
-                cardBg = 'linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)';
               }
+
+              const wTotal = w.num === 24 ? liveWard24.total : w.total;
+              const wResolved = w.num === 24 ? liveWard24.resolved : w.resolved;
+              const wPending = w.num === 24 ? liveWard24.pending : w.pending;
 
               return (
                 <div
@@ -677,25 +681,6 @@ export default function ChairmanWardsPage() {
                     </div>
                   )}
 
-                  {w.num === 24 && (
-                    <div style={{
-                      background: '#ecfdf5',
-                      color: '#047857',
-                      border: '1px solid #a7f3d0',
-                      borderRadius: 6,
-                      fontSize: '0.68rem',
-                      fontWeight: 800,
-                      padding: '3px 6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 4,
-                      marginBottom: 8,
-                    }}>
-                      ⭐ मुख्य डेमो वार्ड 24
-                    </div>
-                  )}
-
                   {/* Top Row: Ward Number + Party Pill */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
@@ -756,12 +741,12 @@ export default function ChairmanWardsPage() {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem' }}>
                       <span style={{ color: '#64748b' }}>कुल शिकायतें:</span>
-                      <span style={{ fontWeight: 800, color: '#1e3a8a' }}>{w.total}</span>
+                      <span style={{ fontWeight: 800, color: '#1e3a8a' }}>{wTotal}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem' }}>
-                      <span style={{ color: '#16a34a', fontWeight: 800 }}>✓ {w.resolved} हल</span>
-                      <span style={{ color: w.pending > 0 ? '#d97706' : '#16a34a', fontWeight: 700 }}>
-                        {w.pending > 0 ? `${w.pending} लंबित` : '100% पूर्ण'}
+                      <span style={{ color: '#16a34a', fontWeight: 800 }}>✓ {wResolved} हल</span>
+                      <span style={{ color: wPending > 0 ? '#d97706' : '#16a34a', fontWeight: 700 }}>
+                        {wPending > 0 ? `${wPending} लंबित` : '100% पूर्ण'}
                       </span>
                     </div>
                   </div>
