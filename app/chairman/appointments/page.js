@@ -5,6 +5,8 @@ import Link from 'next/link';
 import DashboardShell from '@/components/DashboardShell';
 import {
   getAppointments,
+  fetchAppointmentsFromCloud,
+  subscribeToAppointments,
   updateAppointmentStatus,
   getChairmanTourStatus,
   setChairmanTourStatus,
@@ -32,6 +34,20 @@ export default function ChairmanAppointmentsPage() {
   useEffect(() => {
     setAppointments(getAppointments());
     setIsOnTour(getChairmanTourStatus());
+
+    let isMounted = true;
+    fetchAppointmentsFromCloud().then(list => {
+      if (isMounted) setAppointments(list);
+    });
+
+    const unsubscribe = subscribeToAppointments(list => {
+      if (isMounted) setAppointments(list);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   function handleTourToggle() {
