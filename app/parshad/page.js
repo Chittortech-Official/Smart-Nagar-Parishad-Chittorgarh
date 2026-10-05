@@ -152,8 +152,8 @@ export default function ParshadPage() {
       {/* 2. Parshad Dedicated 5-Tab Navigation Bar */}
       <ParshadNavTabs />
 
-      {/* 3. Ward Complaint Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
+      {/* 3. Ward Complaint Metric Cards - Mobile Responsive Auto-Fit */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginBottom: 16 }}>
         <Link href="/parshad/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #1e3a8a', textDecoration: 'none', color: 'inherit' }}>
           <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{s.total}</div>
           <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
@@ -209,27 +209,29 @@ export default function ParshadPage() {
                 style={{
                   border: '1px solid #e2e8f0',
                   borderRadius: 12,
-                  padding: '12px 16px',
+                  padding: '14px 16px',
                   background: '#ffffff',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
+                  flexDirection: 'column',
+                  gap: 10,
                   transition: 'all 0.15s ease',
                   cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                  width: '100%',
+                  boxSizing: 'border-box',
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#f0f9ff'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Top Row: Token + Category + Status Badge */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800 }}>
+                    <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800, background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>
                       {c.code}
                     </span>
-                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
+                    <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.94rem' }}>
                       {c.category}
-                    </span>
+                    </strong>
                     {c.photo && (
                       <span style={{
                         background: '#e0f2fe',
@@ -239,19 +241,30 @@ export default function ParshadPage() {
                         fontSize: '0.7rem',
                         fontWeight: 700,
                       }}>
-                        📷 फोटो संलग्न
+                        📷 फोटो
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 3 }}>
-                    📍 {c.location} • नागरिक: <strong>{c.citizen}</strong> • {c.date}
-                  </div>
+                  <StatusBadge status={c.status} />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <StatusBadge status={c.status} />
-                  <span style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    विवरण <ChevronRight size={16} />
+                {/* Bottom Row: Location + Citizen + Date + Action */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  flexWrap: 'wrap',
+                  borderTop: '1px solid #f1f5f9',
+                  paddingTop: 8,
+                  fontSize: '0.78rem',
+                  color: '#64748b'
+                }}>
+                  <div>
+                    📍 {c.location} • नागरिक: <strong style={{ color: '#334155' }}>{c.citizen}</strong> • {c.date}
+                  </div>
+                  <span style={{ color: '#0284c7', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: '0.8rem' }}>
+                    विवरण देखें <ChevronRight size={14} />
                   </span>
                 </div>
               </div>

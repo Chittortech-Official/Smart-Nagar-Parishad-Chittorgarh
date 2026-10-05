@@ -492,18 +492,6 @@ export default function CitizenPage() {
             </div>
           </div>
 
-          {/* Door-to-Door Garbage Vehicle Live Tracker Card */}
-          <div className="card" style={{ padding: '16px 18px', background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <Truck size={18} color="#16a34a" />
-              <strong style={{ fontSize: '0.875rem', color: '#166534' }}>कचरा संग्रहण वाहन (Door-to-Door)</strong>
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#15803d', lineHeight: 1.4 }}>
-              वाहन: <strong>RJ-09-GC-{String(1000 + Number(citizen.ward || 24))}</strong><br />
-              स्थिति: <span style={{ fontWeight: 700 }}>वार्ड {citizen.ward} में भ्रमण पूर्ण (प्रातः 8:30 बजे)</span> ✅
-            </div>
-          </div>
-
           {/* 24x7 Official Helpline Card */}
           <div className="card" style={{ padding: '16px 18px', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>

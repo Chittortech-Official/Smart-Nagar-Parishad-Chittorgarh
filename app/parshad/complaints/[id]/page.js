@@ -200,7 +200,7 @@ export default function ParshadComplaintDetailPage({ params }) {
       </div>
 
       {/* Grid: Left Column (Details & Photo) + Right Column (Citizen & Staff Actions) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 20 }}>
         {/* Left Column: Complaint Text & Photo Proof */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Citizen Description Card */}
