@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { saveCitizenProfile, lookupCitizenByPhone, DEFAULT_MOCK_CITIZENS } from '@/lib/citizenService';
+import { CHITTORGARH_60_WARDS } from '@/lib/data/wardsResults';
 import ChittorgarhLogo from './ChittorgarhLogo';
 import {
   User, Phone, MapPin, Lock,
@@ -444,7 +445,7 @@ export default function CitizenOnboarding({ onComplete }) {
                 </div>
 
                 {/* Ward Select */}
-                <div style={{ marginBottom: 10 }}>
+                <div style={{ marginBottom: 12 }}>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 3, lineHeight: 1.3 }}>
                     वार्ड संख्या (Ward) <span style={{ color: '#dc2626' }}>*</span>
                   </label>
@@ -462,15 +463,90 @@ export default function CitizenOnboarding({ onComplete }) {
                       }}
                       required
                     >
-                      {Array.from({ length: 60 }, (_, i) => i + 1).map(n => (
-                        <option key={n} value={n}>
-                          वार्ड {n} {n === 24 ? '(उदा. भारत माता चौक)' : ''}
+                      {CHITTORGARH_60_WARDS.map(w => (
+                        <option key={w.num} value={w.num}>
+                          वार्ड {w.num} — {w.councillor} ({w.party})
                         </option>
                       ))}
                     </select>
                     <MapPin size={15} color="#64748b" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                     <ChevronDown size={15} color="#64748b" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                   </div>
+
+                  {/* Dynamic Ward Councillor (पार्षद प्रतिनिधि) Live Info Card */}
+                  {(() => {
+                    const currentWard = CHITTORGARH_60_WARDS.find(w => w.num === parseInt(wardNum, 10)) || CHITTORGARH_60_WARDS[23];
+                    const isBjp = currentWard.partyCode === 'bjp';
+                    const isInc = currentWard.partyCode === 'inc';
+                    const partyTheme = isBjp
+                      ? { bg: '#fff7ed', border: '#fdba74', accent: '#ea580c', tagBg: '#ffedd5', tagText: '#c2410c' }
+                      : isInc
+                      ? { bg: '#eff6ff', border: '#bfdbfe', accent: '#2563eb', tagBg: '#dbeafe', tagText: '#1e40af' }
+                      : { bg: '#faf5ff', border: '#e9d5ff', accent: '#9333ea', tagBg: '#f3e8ff', tagText: '#6b21a8' };
+
+                    return (
+                      <div style={{
+                        marginTop: 7,
+                        background: partyTheme.bg,
+                        border: `1.5px solid ${partyTheme.border}`,
+                        borderLeft: `4px solid ${partyTheme.accent}`,
+                        borderRadius: 8,
+                        padding: '8px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                          <div style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            background: '#ffffff',
+                            color: partyTheme.accent,
+                            border: `1.5px solid ${partyTheme.border}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            flexShrink: 0
+                          }}>
+                            {currentWard.councillor.charAt(0)}
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
+                              वार्ड {currentWard.num} के निर्वाचित पार्षद:
+                            </div>
+                            <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {currentWard.isChairman ? `${currentWard.councillor} (सभापति)` : currentWard.isViceChairman ? `${currentWard.councillor} (उपसभापति)` : currentWard.councillor}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 9999,
+                            background: partyTheme.tagBg,
+                            color: partyTheme.tagText,
+                            border: `1px solid ${partyTheme.border}`,
+                            display: 'inline-block'
+                          }}>
+                            {currentWard.party}
+                          </span>
+                          {currentWard.reservation && (
+                            <div style={{ fontSize: '0.62rem', color: '#64748b', marginTop: 2 }}>
+                              {currentWard.reservation.split(' ')[0]}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* 4-Digit MPIN for Security */}

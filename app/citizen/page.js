@@ -7,8 +7,10 @@ import GovLoadingScreen from '@/components/GovLoadingScreen';
 import {
   getStoredCitizenProfile,
   getCitizenComplaints,
-  clearStoredCitizenProfile
+  clearStoredCitizenProfile,
+  subscribeToLiveComplaints
 } from '@/lib/citizenService';
+import { CHITTORGARH_60_WARDS } from '@/lib/data/wardsResults';
 import Link from 'next/link';
 import {
   FileText, ClipboardList, CheckCircle, Clock,
@@ -79,18 +81,53 @@ function ComplaintTracker({ complaint }) {
 export default function CitizenPage() {
   const [citizen, setCitizen] = useState(null);
   const [complaintList, setComplaintList] = useState([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(true);
 
   useEffect(() => {
     const stored = getStoredCitizenProfile();
     if (stored) {
       setCitizen(stored);
-      getCitizenComplaints(stored.phone).then(list => setComplaintList(list));
+    } else {
+      setLoadingComplaints(false);
     }
   }, []);
 
+  // Live Cloud Database Sync for Active Citizen Profile across all devices
+  useEffect(() => {
+    if (!citizen?.phone) return;
+
+    let isMounted = true;
+    setLoadingComplaints(true);
+
+    getCitizenComplaints(citizen.phone).then(list => {
+      if (isMounted) {
+        setComplaintList(list);
+        setLoadingComplaints(false);
+      }
+    });
+
+    const unsubscribe = subscribeToLiveComplaints(() => {
+      getCitizenComplaints(citizen.phone).then(list => {
+        if (isMounted) {
+          setComplaintList(list);
+          setLoadingComplaints(false);
+        }
+      });
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [citizen?.phone]);
+
   function handleOnboardSuccess(profile) {
     setCitizen(profile);
-    getCitizenComplaints(profile.phone).then(list => setComplaintList(list));
+    setLoadingComplaints(true);
+    getCitizenComplaints(profile.phone).then(list => {
+      setComplaintList(list);
+      setLoadingComplaints(false);
+    });
   }
 
   function handleSwitchProfile() {
@@ -98,6 +135,7 @@ export default function CitizenPage() {
       clearStoredCitizenProfile();
       setCitizen(null);
       setComplaintList([]);
+      setLoadingComplaints(false);
     }
   }
 
@@ -177,19 +215,19 @@ export default function CitizenPage() {
       {/* 2. Responsive Stat Grid (2x2 on Mobile, 4-col on Desktop) */}
       <div className="citizen-stat-grid">
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #1e3a8a', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{total}</div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{loadingComplaints ? '...' : total}</div>
           <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
         </Link>
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #d97706', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{inProgress}</div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{loadingComplaints ? '...' : inProgress}</div>
           <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>खुली / लंबित</div>
         </Link>
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #16a34a', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{resolved}</div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{loadingComplaints ? '...' : resolved}</div>
           <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>निस्तारित</div>
         </Link>
         <Link href="/citizen/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #dc2626', textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 82 }}>
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{reopened}</div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{loadingComplaints ? '...' : reopened}</div>
           <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 700, marginTop: 4 }}>पुनः खुली</div>
         </Link>
       </div>
@@ -334,7 +372,29 @@ export default function CitizenPage() {
       <div className="citizen-grid-layout">
         {/* LEFT COLUMN: Live Tracker & Complaints */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {total === 0 ? (
+          {loadingComplaints ? (
+            <div className="card" style={{ padding: '36px 20px', textAlign: 'center' }}>
+              <div style={{
+                width: 48, height: 48,
+                background: '#eff6ff',
+                color: '#2563eb',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px',
+                animation: 'pulse 1.5s infinite ease-in-out'
+              }}>
+                <Loader2 size={24} className="animate-spin" />
+              </div>
+              <h3 style={{ fontSize: '1rem', color: '#1e3a8a', fontWeight: 700, margin: '0 0 4px' }}>
+                क्लाउड सर्वर से शिकायतें सिंक हो रही हैं...
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+                वार्ड {citizen.ward} एवं क्लाउड डेटाबेस से रियल-टाइम विवरण लोड किया जा रहा है
+              </p>
+            </div>
+          ) : total === 0 ? (
             /* Clean Civic Empty State */
             <div className="card" style={{ padding: '36px 20px', textAlign: 'center' }}>
               <div style={{
@@ -451,17 +511,28 @@ export default function CitizenPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.8125rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड पार्षद</div>
-                  <strong style={{ color: '#0f172a' }}>
-                    {citizen.ward === '24' ? 'श्रीमती कुसुम (भाजपा)' : `पार्षद प्रतिनिधि (वार्ड ${citizen.ward})`}
-                  </strong>
-                </div>
-                <span style={{ fontSize: '0.72rem', background: '#f3e8ff', color: '#7c3aed', padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>
-                  पार्षद
-                </span>
-              </div>
+              {(() => {
+                const wNum = parseInt(String(citizen.ward || '24').replace(/\D/g, ''), 10) || 24;
+                const councillorData = CHITTORGARH_60_WARDS.find(w => w.num === wNum) || CHITTORGARH_60_WARDS[23];
+                const isBjp = councillorData.partyCode === 'bjp';
+                const isInc = councillorData.partyCode === 'inc';
+                const pColor = isBjp ? '#c2410c' : isInc ? '#1e40af' : '#6b21a8';
+                const pBg = isBjp ? '#ffedd5' : isInc ? '#dbeafe' : '#f3e8ff';
+
+                return (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>वार्ड पार्षद प्रतिनिधि (वार्ड {councillorData.num})</div>
+                      <strong style={{ color: '#0f172a' }}>
+                        {councillorData.isChairman ? `${councillorData.councillor} (सभापति)` : councillorData.isViceChairman ? `${councillorData.councillor} (उपसभापति)` : councillorData.councillor}
+                      </strong>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', background: pBg, color: pColor, padding: '3px 8px', borderRadius: 999, fontWeight: 700 }}>
+                      {councillorData.party}
+                    </span>
+                  </div>
+                );
+              })()}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>

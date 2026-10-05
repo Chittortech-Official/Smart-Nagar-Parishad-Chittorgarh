@@ -25,7 +25,7 @@ const CATEGORIES = [
   { id: 9, name: 'अन्य नागरिक समस्या', en: 'Other Civic Issue',     icon: HelpCircle,   color: '#475569', dept: 'सामान्य प्रशासन',           time: '72 घंटे' },
 ];
 
-const WARDS = Array.from({ length: 60 }, (_, i) => ({ id: i + 1, label: `वार्ड नं. ${i + 1}` }));
+import { CHITTORGARH_60_WARDS } from '@/lib/data/wardsResults';
 
 export default function ReportPage() {
   const { profile } = useAuth();
@@ -446,9 +446,9 @@ export default function ReportPage() {
                           outline: 'none',
                         }}
                       >
-                        {WARDS.map(w => (
-                          <option key={w.id} value={w.id}>
-                            {w.label}
+                        {CHITTORGARH_60_WARDS.map(w => (
+                          <option key={w.num} value={w.num}>
+                            वार्ड {w.num} — {w.councillor} ({w.party})
                           </option>
                         ))}
                       </select>
@@ -480,6 +480,61 @@ export default function ReportPage() {
                       <span>{locating ? 'खोज...' : 'GPS'}</span>
                     </button>
                   </div>
+
+                  {/* Ward Councillor Info Banner */}
+                  {(() => {
+                    const currentWardData = CHITTORGARH_60_WARDS.find(w => w.num === parseInt(ward, 10)) || CHITTORGARH_60_WARDS[23];
+                    const isBjp = currentWardData.partyCode === 'bjp';
+                    const isInc = currentWardData.partyCode === 'inc';
+                    const pBg = isBjp ? '#fff7ed' : isInc ? '#eff6ff' : '#faf5ff';
+                    const pBorder = isBjp ? '#fed7aa' : isInc ? '#bfdbfe' : '#e9d5ff';
+                    const pText = isBjp ? '#c2410c' : isInc ? '#1e40af' : '#6b21a8';
+                    const pBadge = isBjp ? '#ffedd5' : isInc ? '#dbeafe' : '#f3e8ff';
+
+                    return (
+                      <div style={{
+                        marginTop: 8,
+                        background: pBg,
+                        border: `1.5px solid ${pBorder}`,
+                        borderLeft: `4px solid ${pText}`,
+                        borderRadius: 8,
+                        padding: '8px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 10
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: '1.1rem' }}>🏛️</span>
+                          <div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                              वार्ड {currentWardData.num} के निर्वाचित पार्षद:
+                            </div>
+                            <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
+                              {currentWardData.isChairman ? `${currentWardData.councillor} (सभापति)` : currentWardData.isViceChairman ? `${currentWardData.councillor} (उपसभापति)` : currentWardData.councillor}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 9999,
+                            background: pBadge,
+                            color: pText,
+                            border: `1px solid ${pBorder}`,
+                            display: 'inline-block'
+                          }}>
+                            {currentWardData.party}
+                          </span>
+                          <div style={{ fontSize: '0.65rem', color: '#16a34a', fontWeight: 600, marginTop: 2 }}>
+                            सीधी वार्ड मॉनिटरिंग ✓
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                   {address && <p className="form-hint" style={{ color: '#15803d', fontWeight: 600, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>📍 {address}</p>}
                 </div>
 

@@ -5,7 +5,7 @@ import DashboardShell from '@/components/DashboardShell';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
 import {
-  FileText, Plus, ChevronDown, ChevronUp, MapPin, AlertCircle, ShieldCheck
+  FileText, Plus, ChevronDown, ChevronUp, MapPin, AlertCircle, ShieldCheck, Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -16,6 +16,7 @@ export default function CitizenComplaintsPage() {
   const [mounted, setMounted] = useState(false);
   const [citizen, setCitizen] = useState(null);
   const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState({});
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -28,19 +29,43 @@ export default function CitizenComplaintsPage() {
     const stored = getStoredCitizenProfile();
     if (stored) {
       setCitizen(stored);
-      getCitizenComplaints(stored.phone).then(list => {
-        setComplaints(list);
-        if (list.length > 0) setExpandedId(list[0].id);
-      });
-
-      const unsubscribe = subscribeToLiveComplaints(() => {
-        getCitizenComplaints(stored.phone).then(list => {
-          setComplaints(list);
-        });
-      });
-      return () => unsubscribe();
+    } else {
+      setLoading(false);
     }
   }, []);
+
+  // Live Cloud Database Sync for Citizen Complaints
+  useEffect(() => {
+    if (!citizen?.phone) {
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setLoading(true);
+
+    getCitizenComplaints(citizen.phone).then(list => {
+      if (isMounted) {
+        setComplaints(list);
+        setLoading(false);
+        if (list.length > 0) setExpandedId(list[0].id);
+      }
+    });
+
+    const unsubscribe = subscribeToLiveComplaints(() => {
+      getCitizenComplaints(citizen.phone).then(list => {
+        if (isMounted) {
+          setComplaints(list);
+          setLoading(false);
+        }
+      });
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [citizen?.phone]);
 
   function toggleExpand(id) {
     setExpandedId(prev => (prev === id ? null : id));
@@ -163,7 +188,7 @@ export default function CitizenComplaintsPage() {
             }}
             onClick={() => setFilter('all')}
           >
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{totalCount}</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{loading ? '...' : totalCount}</div>
             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
           </div>
 
@@ -184,7 +209,7 @@ export default function CitizenComplaintsPage() {
             }}
             onClick={() => setFilter('open')}
           >
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{openCount}</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{loading ? '...' : openCount}</div>
             <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>खुली / लंबित</div>
           </div>
 
@@ -205,7 +230,7 @@ export default function CitizenComplaintsPage() {
             }}
             onClick={() => setFilter('resolved')}
           >
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{resolvedCount}</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{loading ? '...' : resolvedCount}</div>
             <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>निस्तारित</div>
           </div>
 
@@ -226,7 +251,7 @@ export default function CitizenComplaintsPage() {
             }}
             onClick={() => setFilter('reopened')}
           >
-            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{reopenedCount}</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{loading ? '...' : reopenedCount}</div>
             <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 700, marginTop: 4 }}>पुनः खुली</div>
           </div>
         </div>
@@ -279,7 +304,28 @@ export default function CitizenComplaintsPage() {
         </div>
 
         {/* Complaints List */}
-        {totalCount === 0 ? (
+        {loading ? (
+          <div className="card" style={{ padding: '40px 20px', textAlign: 'center', background: '#ffffff', border: '1.5px solid #e2e8f0' }}>
+            <div style={{
+              width: 48, height: 48,
+              background: '#eff6ff',
+              color: '#2563eb',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 12px',
+            }}>
+              <Loader2 size={24} className="animate-spin" />
+            </div>
+            <h3 style={{ fontSize: '1rem', color: '#1e3a8a', fontWeight: 700, margin: '0 0 4px' }}>
+              क्लाउड सर्वर से शिकायतें लोड हो रही हैं...
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+              कृपया प्रतीक्षा करें, आपके मोबाइल नंबर से जुड़ी शिकायतें सिंक की जा रही हैं
+            </p>
+          </div>
+        ) : totalCount === 0 ? (
           <div className="card" style={{ padding: '40px 20px', textAlign: 'center', background: '#ffffff', border: '1.5px solid #e2e8f0' }}>
             <div style={{
               width: 56, height: 56,
