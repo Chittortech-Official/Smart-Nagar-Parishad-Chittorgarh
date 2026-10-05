@@ -1,11 +1,10 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
-import { getSharedLiveComplaints, fetchSharedLiveComplaints } from '@/lib/citizenService';
+import { getSharedLiveComplaints, fetchSharedLiveComplaints, updateComplaintStatusByParshad } from '@/lib/citizenService';
 import {
   ArrowLeft, MapPin, Phone, Calendar,
   Clock, Image, Send, ShieldCheck, CheckCircle2,
@@ -211,6 +210,50 @@ export default function ParshadComplaintDetailPage() {
 
   const c = complaint;
 
+  const [selectedStatus, setSelectedStatus] = useState('in_progress');
+  const [parshadMessage, setParshadMessage] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState('');
+
+  useEffect(() => {
+    if (complaint?.status === 'submitted') {
+      setSelectedStatus('in_progress');
+    } else if (complaint?.status === 'in_progress') {
+      setSelectedStatus('resolved');
+    } else if (complaint?.status) {
+      setSelectedStatus(complaint.status);
+    }
+  }, [complaint?.status]);
+
+  async function handleParshadUpdate() {
+    if (!complaint?.code && !id) return;
+    setUpdating(true);
+    setUpdateSuccess('');
+    try {
+      const codeToUse = complaint.code || id;
+      const res = await updateComplaintStatusByParshad({
+        complaintCode: codeToUse,
+        newStatus: selectedStatus,
+        note: parshadMessage,
+        parshadName: 'श्रीमती कुसुम (पार्षद, वार्ड 24)',
+      });
+
+      setComplaint(prev => ({
+        ...prev,
+        status: selectedStatus,
+        parshadNote: res.parshadNote,
+      }));
+
+      setUpdateSuccess('कार्रवाई अद्यतन पूर्ण! नागरिक व कंट्रोल रूम को स्थिति प्रेषित कर दी गई है।');
+      setParshadMessage('');
+      setTimeout(() => setUpdateSuccess(''), 6000);
+    } catch (e) {
+      alert('अद्यतन विफल: ' + (e?.message || e));
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   return (
     <DashboardShell requiredRole="parshad">
       {/* Parshad 5-Tab Navigation Bar */}
@@ -278,8 +321,27 @@ export default function ParshadComplaintDetailPage() {
 
       {/* Grid: Left Column (Details & Photo) + Right Column (Citizen & Staff Actions) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 20 }}>
-        {/* Left Column: Complaint Text & Photo Proof */}
+        {/* Left Column: Complaint Text, Parshad Actions & Photo Proof */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Active Parshad Action Banner (if already taken) */}
+          {c.parshadNote && (
+            <div className="card" style={{
+              padding: '14px 18px',
+              background: '#fdf4ff',
+              border: '2px solid #d8b4fe',
+              borderRadius: 12,
+              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.08)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed', fontWeight: 800, fontSize: '0.85rem', marginBottom: 4 }}>
+                <ShieldCheck size={18} />
+                <span>पार्षद स्तर पर दर्ज कार्रवाई व नागरिक संदेश:</span>
+              </div>
+              <div style={{ fontSize: '0.92rem', color: '#1e1b4b', fontWeight: 700, lineHeight: 1.45 }}>
+                "{c.parshadNote}"
+              </div>
+            </div>
+          )}
+
           {/* Citizen Description Card */}
           <div className="card" style={{ padding: '18px' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e3a8a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>
@@ -469,34 +531,167 @@ export default function ParshadComplaintDetailPage() {
             </div>
           </div>
 
-          {/* Parshad Action Strip */}
-          <div className="card" style={{ padding: '18px', background: '#f5f3ff', border: '1.5px solid #ddd6fe' }}>
-            <div style={{ fontWeight: 800, color: '#7c3aed', fontSize: '0.95rem', marginBottom: 4 }}>
-              पार्षद विशेषाधिकार व निगरानी कार्रवाई
+          {/* Parshad Direct Action & Citizen Notification Panel */}
+          <div className="card" style={{ padding: '20px', background: '#fdf4ff', border: '2px solid #e9d5ff', borderRadius: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: '#7c3aed', color: '#ffffff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <ShieldCheck size={18} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, color: '#6b21a8', fontSize: '1rem', lineHeight: 1.2 }}>
+                  पार्षद सीधी कार्रवाई एवं स्थिति अद्यतन
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#7e22ce' }}>
+                  श्रीमती कुसुम (पार्षद, वार्ड 24) • लाइव नागरिक संचार
+                </div>
+              </div>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 12px', lineHeight: 1.4 }}>
-              यदि कार्य समय पर नहीं हो रहा है, तो कंट्रोल रूम या अधिशाषी अधिकारी को प्राथमिकता प्रेषित करें।
+
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0 0 14px', lineHeight: 1.45 }}>
+              यहाँ से आप स्थिति बदलकर नागरिक को सीधा संदेश भेज सकते हैं। यह अद्यतन तुरंत नागरिक पोर्टल पर प्रदर्शित होगा।
             </p>
 
+            {/* 1. Status Selection */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 800, color: '#475569', marginBottom: 6 }}>
+                1. शिकायत स्थिति चुनें:
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+                {[
+                  { id: 'in_progress', label: 'कार्य प्रगति पर', icon: '🟡', sub: 'In Progress' },
+                  { id: 'resolved',    label: 'निस्तारित',       icon: '🟢', sub: 'Resolved' },
+                  { id: 'assigned',    label: 'कार्य आवंटित',     icon: '🔵', sub: 'Assigned' },
+                ].map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setSelectedStatus(opt.id)}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: 10,
+                      border: selectedStatus === opt.id ? '2px solid #7c3aed' : '1px solid #cbd5e1',
+                      background: selectedStatus === opt.id ? '#7c3aed' : '#ffffff',
+                      color: selectedStatus === opt.id ? '#ffffff' : '#1e293b',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 2,
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span>{opt.icon} {opt.label}</span>
+                    <span style={{ fontSize: '0.65rem', opacity: selectedStatus === opt.id ? 0.9 : 0.6 }}>{opt.sub}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Message to Citizen / Quick Chips */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 800, color: '#475569', marginBottom: 6 }}>
+                2. नागरिक को स्थिति संदेश / टिप्पणी भेजें:
+              </label>
+
+              {/* Quick Template Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                {[
+                  '⚡ मौके पर टीम भेजकर कार्य शुरू कराया गया।',
+                  '📞 संबंधित शाखा प्रभारी को त्वरित निराकरण के निर्देश दिए।',
+                  '✅ स्थल निरीक्षण उपरांत समस्या का पूर्ण समाधान हो गया।',
+                ].map(chip => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => setParshadMessage(chip)}
+                    style={{
+                      fontSize: '0.72rem',
+                      padding: '4px 9px',
+                      borderRadius: 6,
+                      background: parshadMessage === chip ? '#e9d5ff' : '#ffffff',
+                      border: '1px solid #d8b4fe',
+                      color: '#6b21a8',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
+
+              <textarea
+                value={parshadMessage}
+                onChange={e => setParshadMessage(e.target.value)}
+                placeholder="यहाँ नागरिक के लिए संदेश या कार्रवाई विवरण दर्ज करें..."
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: 8,
+                  border: '1.5px solid #cbd5e1',
+                  fontSize: '0.84rem',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  resize: 'vertical',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Success Message Banner */}
+            {updateSuccess && (
+              <div style={{
+                background: '#dcfce7',
+                border: '1.5px solid #86efac',
+                color: '#166534',
+                padding: '10px 12px',
+                borderRadius: 8,
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                marginBottom: 12,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}>
+                <CheckCircle2 size={18} color="#16a34a" />
+                <span>{updateSuccess}</span>
+              </div>
+            )}
+
+            {/* 3. Action Submit Button */}
             <button
               type="button"
-              onClick={() => alert(`कंट्रोल रूम को त्वरित समाधान हेतु अलर्ट भेज दिया गया है!`)}
-              className="btn btn-sm"
+              disabled={updating}
+              onClick={handleParshadUpdate}
               style={{
                 width: '100%',
                 background: '#7c3aed',
                 color: '#ffffff',
-                padding: '10px 16px',
-                borderRadius: 8,
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                display: 'inline-flex',
+                padding: '11px 16px',
+                borderRadius: 10,
+                fontSize: '0.88rem',
+                fontWeight: 800,
+                border: 'none',
+                cursor: updating ? 'not-allowed' : 'pointer',
+                opacity: updating ? 0.7 : 1,
+                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6
+                gap: 8,
+                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.25)',
+                transition: 'all 0.15s ease'
               }}
             >
-              <Send size={15} /> कंट्रोल रूम को त्वरित कार्यवाही संदेश भेजें
+              <Send size={16} />
+              {updating ? 'स्थिति अद्यतन हो रही है...' : 'स्थिति अद्यतन करें एवं नागरिक को सूचित करें'}
             </button>
           </div>
         </div>

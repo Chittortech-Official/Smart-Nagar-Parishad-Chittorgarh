@@ -5,12 +5,12 @@ import DashboardShell from '@/components/DashboardShell';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
 import {
-  FileText, Plus, ChevronDown, ChevronUp, MapPin, AlertCircle
+  FileText, Plus, ChevronDown, ChevronUp, MapPin, AlertCircle, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 
 import CitizenOnboarding from '@/components/CitizenOnboarding';
-import { getStoredCitizenProfile, getCitizenComplaints } from '@/lib/citizenService';
+import { getStoredCitizenProfile, getCitizenComplaints, subscribeToLiveComplaints } from '@/lib/citizenService';
 
 export default function CitizenComplaintsPage() {
   const [mounted, setMounted] = useState(false);
@@ -32,6 +32,13 @@ export default function CitizenComplaintsPage() {
         setComplaints(list);
         if (list.length > 0) setExpandedId(list[0].id);
       });
+
+      const unsubscribe = subscribeToLiveComplaints(() => {
+        getCitizenComplaints(stored.phone).then(list => {
+          setComplaints(list);
+        });
+      });
+      return () => unsubscribe();
     }
   }, []);
 
@@ -366,6 +373,25 @@ export default function CitizenComplaintsPage() {
                     अनुमानित समय: <strong style={{ color: '#0f172a' }}>{c.sla}</strong>
                   </div>
                 </div>
+
+                {/* Parshad Action & Message Banner */}
+                {c.parshadNote && (
+                  <div style={{
+                    marginBottom: 10,
+                    background: '#fdf4ff',
+                    border: '1.5px solid #d8b4fe',
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 8,
+                  }}>
+                    <ShieldCheck size={16} color="#7c3aed" style={{ marginTop: 2, flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.8rem', color: '#4c1d95', lineHeight: 1.45 }}>
+                      <strong style={{ color: '#6b21a8' }}>पार्षद कार्रवाई संदेश:</strong> {c.parshadNote}
+                    </div>
+                  </div>
+                )}
 
                 {/* Sleek 100% Width Toggle Button */}
                 <button

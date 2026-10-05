@@ -149,20 +149,82 @@ export default function ReportPage() {
             आपकी शिकायत नगर परिषद चित्तौड़गढ़ के संबंधित विभाग को प्रेषित कर दी गई है।
           </p>
 
-          <div className="card" style={{ textAlign: 'left', marginBottom: 'var(--space-5)' }}>
-            {[
-              ['शिकायत क्रमांक (ID)', complaint.code],
-              ['वार्ड (Ward)', complaint.ward],
-              ['समस्या श्रेणी', complaint.category],
-              ['संबंधित शाखा', complaint.dept],
-              ['अनुमानित समाधान समय', complaint.time],
-              ['स्थिति (Status)', complaint.status],
-            ].map(([label, val]) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{label}</span>
-                <span style={{ fontWeight: 700, color: label.includes('ID') ? '#1e3a8a' : '#0f172a', fontSize: '0.875rem' }}>{val}</span>
+          <div className="card" style={{
+            textAlign: 'left',
+            marginBottom: 'var(--space-5)',
+            padding: 0,
+            overflow: 'hidden',
+            border: '1.5px solid #e2e8f0',
+            borderRadius: 14,
+            boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)',
+            background: '#ffffff',
+          }}>
+            {/* Header: Complaint ID Banner */}
+            <div style={{
+              background: '#f8fafc',
+              padding: '14px 18px',
+              borderBottom: '1.5px solid #e2e8f0',
+            }}>
+              <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
+                शिकायत क्रमांक (Complaint ID)
               </div>
-            ))}
+              <div style={{ fontSize: '1.18rem', fontWeight: 800, color: '#1e3a8a', letterSpacing: '0.02em', fontFamily: 'monospace' }}>
+                {complaint.code}
+              </div>
+            </div>
+
+            {/* Stacked Tabular Rows (Subject on Top, Data Below) */}
+            <div style={{ padding: '8px 18px 14px' }}>
+              {/* Category / Subject (Full Width) */}
+              <div style={{ padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
+                  समस्या श्रेणी (Subject / Category)
+                </div>
+                <div style={{ fontSize: '0.96rem', fontWeight: 700, color: '#0f172a', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                  {complaint.category}
+                </div>
+              </div>
+
+              {/* 2-Column Responsive Grid: Ward & Department */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 14, padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
+                    वार्ड संख्या (Ward)
+                  </div>
+                  <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a' }}>
+                    {complaint.ward}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
+                    संबंधित विभाग (Department)
+                  </div>
+                  <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a', wordBreak: 'break-word' }}>
+                    {complaint.dept}
+                  </div>
+                </div>
+              </div>
+
+              {/* 2-Column Responsive Grid: Estimated SLA & Current Status */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 14, paddingTop: 12 }}>
+                <div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
+                    अनुमानित समाधान समय (SLA)
+                  </div>
+                  <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#2563eb' }}>
+                    ⏱️ {complaint.time}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginBottom: 4 }}>
+                    वर्तमान स्थिति (Status)
+                  </div>
+                  <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#16a34a' }}>
+                    🟢 {complaint.status}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexDirection: 'column' }}>
