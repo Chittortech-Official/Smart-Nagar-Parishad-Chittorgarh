@@ -9,7 +9,7 @@ import { bookAppointment } from '@/lib/appointmentService';
 import {
   Calendar, Clock, Phone, User, MapPin, Building,
   AlertCircle, CheckCircle2, ChevronLeft, ArrowRight,
-  Shield, Sparkles, Send, Copy, Check
+  Shield, Sparkles, Send, Copy, Check, Crown
 } from 'lucide-react';
 
 const DEPARTMENTS = [
@@ -142,39 +142,43 @@ export default function SabhapatiAppointmentPage() {
           <ChevronLeft size={16} /> वापस नागरिक होम पर
         </Link>
 
-        {/* Top Header Card */}
+        {/* Top Header Card - Clean, Sober, Civic */}
         <div style={{
-          background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
-          borderRadius: 16,
-          padding: '20px 22px',
-          color: '#ffffff',
-          marginBottom: 18,
-          boxShadow: '0 4px 16px rgba(30, 58, 138, 0.25)',
-          position: 'relative',
-          overflow: 'hidden',
+          background: '#ffffff',
+          borderRadius: 14,
+          padding: '14px 16px',
+          border: '1.5px solid #bfdbfe',
+          boxShadow: '0 2px 8px rgba(30, 58, 138, 0.05)',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
         }}>
           <div style={{
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            color: '#fdba74',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            marginBottom: 4,
+            width: 44,
+            height: 44,
+            borderRadius: 10,
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
+            justifyContent: 'center',
+            flexShrink: 0,
+            color: '#1e3a8a',
           }}>
-            <span>नगर परिषद चित्तौड़गढ़</span>
-            <span>•</span>
-            <span style={{ color: '#86efac' }}>जनसुनवाई ई-सेवा</span>
+            <Crown size={22} />
           </div>
-
-          <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 6px 0', lineHeight: 1.3 }}>
-            सभापति जी से व्यक्तिगत भेंट / अपॉइंटमेंट अनुरोध
-          </h1>
-          <p style={{ fontSize: '0.825rem', color: '#e0e7ff', margin: 0, lineHeight: 1.45 }}>
-            सभापति: <strong>श्री अनिल जी ईनाणी</strong> • नगर परिषद चित्तौड़गढ़ में व्यक्तिगत जनसुनवाई हेतु
-          </p>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              नगर परिषद चित्तौड़गढ़ • जनसुनवाई
+            </div>
+            <h1 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#1e3a8a', margin: '2px 0', lineHeight: 1.3 }}>
+              सभापति जी से भेंट हेतु अनुरोध
+            </h1>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
+              श्री अनिल जी ईनाणी के समक्ष प्रकरण प्रस्तुत करने हेतु
+            </p>
+          </div>
         </div>
 
         {/* SUCCESS CONFIRMATION SCREEN */}
@@ -328,9 +332,9 @@ export default function SabhapatiAppointmentPage() {
             onSubmit={handleSubmit}
             style={{
               background: '#ffffff',
-              borderRadius: 16,
+              borderRadius: 14,
               border: '1px solid #e2e8f0',
-              padding: '22px 20px',
+              padding: '18px 16px',
               boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
             }}
           >
@@ -348,38 +352,41 @@ export default function SabhapatiAppointmentPage() {
                 alignItems: 'center',
                 gap: 8,
               }}>
-                <AlertCircle size={16} />
+                <AlertCircle size={16} style={{ flexShrink: 0 }} />
                 <span>{errorMsg}</span>
               </div>
             )}
 
-            {/* Row 1: Name and Community/Surname */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
+            {/* Row 1: Name & Surname/Community */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  पूरा नाम (Full Name) *
+                <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                  पूरा नाम <span style={{ color: '#dc2626' }}>*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="उदा. राजेश कुमार"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 8,
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    required
+                    placeholder="उदा. राजेश कुमार"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 34px',
+                      borderRadius: 8,
+                      border: '1.5px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <User size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  उपनाम / समाज (Surname / Community)
+                <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                  उपनाम / समाज <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 500 }}>(वैकल्पिक)</span>
                 </label>
                 <input
                   type="text"
@@ -391,7 +398,7 @@ export default function SabhapatiAppointmentPage() {
                     padding: '10px 12px',
                     borderRadius: 8,
                     border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
+                    fontSize: '0.88rem',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -399,23 +406,31 @@ export default function SabhapatiAppointmentPage() {
               </div>
             </div>
 
-            {/* Row 2: 2 Phone Numbers (Mandatory for Secretariat Coordination) */}
+            {/* Row 2: Two Contact Numbers Box */}
             <div style={{
               background: '#f8fafc',
-              border: '1.5px solid #e2e8f0',
+              border: '1.5px solid #e0e7ff',
               borderRadius: 12,
-              padding: '14px 16px',
-              marginBottom: 18,
+              padding: '12px 14px',
+              marginBottom: 14,
             }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0369a1', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Phone size={14} />
-                <span>दो संपर्क नंबर अनिवार्य हैं (Two Contact Numbers for Direct Secretariat Coordination)</span>
+              <div style={{
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                color: '#1e40af',
+                marginBottom: 10,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
+                <Phone size={14} style={{ flexShrink: 0, color: '#2563eb' }} />
+                <span>सचिवालय संपर्क हेतु 2 नंबर (अनिवार्य)</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    पहला मुख्य मोबाइल नंबर *
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                    मुख्य मोबाइल <span style={{ color: '#dc2626' }}>*</span>
                   </label>
                   <input
                     type="tel"
@@ -426,10 +441,10 @@ export default function SabhapatiAppointmentPage() {
                     onChange={e => setPhonePrimary(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '9px 10px',
                       borderRadius: 8,
                       border: '1.5px solid #cbd5e1',
-                      fontSize: '0.875rem',
+                      fontSize: '0.88rem',
                       outline: 'none',
                       boxSizing: 'border-box',
                       background: '#ffffff',
@@ -438,22 +453,22 @@ export default function SabhapatiAppointmentPage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    दूसरा वैकल्पिक / व्हाट्सएप नंबर *
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                    वैकल्पिक / व्हाट्सएप <span style={{ color: '#dc2626' }}>*</span>
                   </label>
                   <input
                     type="tel"
                     required
                     maxLength={10}
-                    placeholder="वैकल्पिक संपर्क नंबर"
+                    placeholder="दूसरा संपर्क नंबर"
                     value={phoneSecondary}
                     onChange={e => setPhoneSecondary(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
+                      padding: '9px 10px',
                       borderRadius: 8,
                       border: '1.5px solid #cbd5e1',
-                      fontSize: '0.875rem',
+                      fontSize: '0.88rem',
                       outline: 'none',
                       boxSizing: 'border-box',
                       background: '#ffffff',
@@ -463,21 +478,21 @@ export default function SabhapatiAppointmentPage() {
               </div>
             </div>
 
-            {/* Row 3: Ward and Department */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 14, marginBottom: 16 }}>
+            {/* Row 3: Ward and Department (Full Space, Never Clipped) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, marginBottom: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  वार्ड संख्या (Ward) *
+                <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                  वार्ड संख्या <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <select
                   value={wardNumber}
                   onChange={e => setWardNumber(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '9px 10px',
                     borderRadius: 8,
                     border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
+                    fontSize: '0.85rem',
                     outline: 'none',
                     background: '#ffffff',
                     boxSizing: 'border-box',
@@ -490,18 +505,18 @@ export default function SabhapatiAppointmentPage() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  संबंधित नगरपालिका शाखा (Department) *
+                <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                  संबंधित नगर परिषद शाखा <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <select
                   value={department}
                   onChange={e => setDepartment(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '9px 10px',
                     borderRadius: 8,
                     border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
+                    fontSize: '0.85rem',
                     outline: 'none',
                     background: '#ffffff',
                     boxSizing: 'border-box',
@@ -515,124 +530,166 @@ export default function SabhapatiAppointmentPage() {
             </div>
 
             {/* Row 4: Urgency Selection */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                मुलाकात की प्राथमिकता (Urgency Level) *
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 6 }}>
+                मुलाकात की प्राथमिकता <span style={{ color: '#dc2626' }}>*</span>
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gap: 6,
+              }}>
                 <button
                   type="button"
                   onClick={() => setUrgency('urgent')}
                   style={{
-                    padding: '10px 8px',
+                    padding: '8px 4px',
                     borderRadius: 8,
-                    fontSize: '0.8rem',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: urgency === 'urgent' ? '2px solid #dc2626' : '1px solid #cbd5e1',
-                    background: urgency === 'urgent' ? '#fee2e2' : '#f8fafc',
+                    border: urgency === 'urgent' ? '2px solid #dc2626' : '1px solid #e2e8f0',
+                    background: urgency === 'urgent' ? '#fee2e2' : '#ffffff',
                     color: urgency === 'urgent' ? '#b91c1c' : '#475569',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 6,
+                    gap: 3,
+                    transition: 'all 0.15s ease',
+                    textAlign: 'center',
                   }}
                 >
-                  🔴 अति आवश्यक (Urgent)
+                  <span style={{ fontSize: '0.85rem' }}>🔴</span>
+                  <span>अति आवश्यक</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setUrgency('normal')}
                   style={{
-                    padding: '10px 8px',
+                    padding: '8px 4px',
                     borderRadius: 8,
-                    fontSize: '0.8rem',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: urgency === 'normal' ? '2px solid #d97706' : '1px solid #cbd5e1',
-                    background: urgency === 'normal' ? '#fef3c7' : '#f8fafc',
+                    border: urgency === 'normal' ? '2px solid #d97706' : '1px solid #e2e8f0',
+                    background: urgency === 'normal' ? '#fef3c7' : '#ffffff',
                     color: urgency === 'normal' ? '#92400e' : '#475569',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 6,
+                    gap: 3,
+                    transition: 'all 0.15s ease',
+                    textAlign: 'center',
                   }}
                 >
-                  🟡 सामान्य जनसमस्या
+                  <span style={{ fontSize: '0.85rem' }}>🟡</span>
+                  <span>सामान्य समस्या</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setUrgency('courtesy')}
                   style={{
-                    padding: '10px 8px',
+                    padding: '8px 4px',
                     borderRadius: 8,
-                    fontSize: '0.8rem',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    border: urgency === 'courtesy' ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                    background: urgency === 'courtesy' ? '#dcfce7' : '#f8fafc',
+                    border: urgency === 'courtesy' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+                    background: urgency === 'courtesy' ? '#dcfce7' : '#ffffff',
                     color: urgency === 'courtesy' ? '#15803d' : '#475569',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 6,
+                    gap: 3,
+                    transition: 'all 0.15s ease',
+                    textAlign: 'center',
                   }}
                 >
-                  🟢 सौजन्य भेंट / सुझाव
+                  <span style={{ fontSize: '0.85rem' }}>🟢</span>
+                  <span>सौजन्य / सुझाव</span>
                 </button>
               </div>
             </div>
 
-            {/* Row 5: Preferred Date and Time Window */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  अपेक्षित तिथि (Preferred Date)
-                </label>
+            {/* Row 5: Preferred Date and Time Window Selection Cards */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                अपेक्षित तिथि (Preferred Date)
+              </label>
+              <div style={{ position: 'relative', marginBottom: 10 }}>
                 <input
                   type="date"
                   value={preferredDate}
                   onChange={e => setPreferredDate(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '9px 12px 9px 34px',
                     borderRadius: 8,
                     border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
+                    fontSize: '0.88rem',
                     outline: 'none',
                     boxSizing: 'border-box',
+                    background: '#ffffff',
                   }}
                 />
+                <Calendar size={15} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                  समय अंतराल (Time Window)
-                </label>
-                <select
-                  value={preferredWindow}
-                  onChange={e => setPreferredWindow(e.target.value)}
+              <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 6 }}>
+                समय अंतराल (Time Window)
+              </label>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: 8,
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setPreferredWindow('morning')}
                   style={{
-                    width: '100%',
-                    padding: '10px 12px',
+                    padding: '8px 10px',
                     borderRadius: 8,
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '0.875rem',
-                    outline: 'none',
-                    background: '#ffffff',
-                    boxSizing: 'border-box',
+                    cursor: 'pointer',
+                    border: preferredWindow === 'morning' ? '2px solid #1e3a8a' : '1px solid #e2e8f0',
+                    background: preferredWindow === 'morning' ? '#eff6ff' : '#ffffff',
+                    color: preferredWindow === 'morning' ? '#1e3a8a' : '#475569',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
                   }}
                 >
-                  <option value="morning">प्रातः 10:30 AM – 1:00 PM (जनसुनवाई)</option>
-                  <option value="afternoon">दोपहर 3:00 PM – 5:00 PM (कार्यालय)</option>
-                </select>
+                  <div style={{ fontWeight: 800, fontSize: '0.78rem' }}>🌅 प्रातः जनसुनवाई</div>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: 2 }}>10:30 AM – 1:00 PM</div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPreferredWindow('afternoon')}
+                  style={{
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    border: preferredWindow === 'afternoon' ? '2px solid #1e3a8a' : '1px solid #e2e8f0',
+                    background: preferredWindow === 'afternoon' ? '#eff6ff' : '#ffffff',
+                    color: preferredWindow === 'afternoon' ? '#1e3a8a' : '#475569',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '0.78rem' }}>🏢 दोपहर कार्यालय</div>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: 2 }}>3:00 PM – 5:00 PM</div>
+                </button>
               </div>
             </div>
 
             {/* Row 6: Subject / Matter Description */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
-                मुलाकात का मुख्य विषय / समस्या का विवरण (Matter Description) *
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: 'block', fontSize: '0.80rem', fontWeight: 700, color: '#1e3a8a', marginBottom: 5 }}>
+                मुलाकात का मुख्य विषय / समस्या विवरण <span style={{ color: '#dc2626' }}>*</span>
               </label>
               <textarea
                 required
@@ -645,7 +702,7 @@ export default function SabhapatiAppointmentPage() {
                   padding: '10px 12px',
                   borderRadius: 8,
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '0.875rem',
+                  fontSize: '0.88rem',
                   outline: 'none',
                   boxSizing: 'border-box',
                   fontFamily: 'inherit',
@@ -660,22 +717,23 @@ export default function SabhapatiAppointmentPage() {
               disabled={loading}
               style={{
                 width: '100%',
-                padding: '14px',
+                padding: '13px',
                 background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 10,
-                fontSize: '0.98rem',
+                fontSize: '0.94rem',
                 fontWeight: 800,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                boxShadow: '0 4px 12px rgba(30, 58, 138, 0.25)',
+                boxShadow: '0 4px 12px rgba(30, 58, 138, 0.22)',
+                transition: 'all 0.15s ease',
               }}
             >
-              <Send size={18} />
+              <Send size={16} />
               {loading ? 'अनुरोध दर्ज हो रहा है...' : 'सभापति जी से भेंट हेतु अनुरोध भेजें'}
             </button>
           </form>
