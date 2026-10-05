@@ -483,12 +483,6 @@ export default function ChairmanAppointmentsPage() {
                 </div>
               </div>
 
-              {/* Secretariat Notes / Reschedule Reason if any */}
-              {apt.officerNotes && (
-                <div style={{ fontSize: '0.76rem', color: '#0369a1', background: '#eff6ff', padding: '6px 12px', borderRadius: 6, border: '1px solid #bfdbfe' }}>
-                  <strong>सचिवालय टिप्पणी:</strong> {apt.officerNotes}
-                </div>
-              )}
 
               {/* Action Buttons for Chairman & Secretariat */}
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: 10 }}>
