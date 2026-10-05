@@ -77,23 +77,15 @@ function ComplaintTracker({ complaint }) {
 }
 
 export default function CitizenPage() {
-  const [mounted, setMounted] = useState(false);
   const [citizen, setCitizen] = useState(null);
   const [complaintList, setComplaintList] = useState([]);
 
   useEffect(() => {
-    // Keep official emblem loading screen visible for at least 2.2s for authentic state presence
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 2200);
-
     const stored = getStoredCitizenProfile();
     if (stored) {
       setCitizen(stored);
       getCitizenComplaints(stored.phone).then(list => setComplaintList(list));
     }
-
-    return () => clearTimeout(timer);
   }, []);
 
   function handleOnboardSuccess(profile) {
@@ -107,14 +99,6 @@ export default function CitizenPage() {
       setCitizen(null);
       setComplaintList([]);
     }
-  }
-
-  if (!mounted) {
-    return (
-      <DashboardShell requiredRole="citizen" hideBottomNav={true}>
-        <GovLoadingScreen message="नागरिक पोर्टल लोड हो रहा है..." />
-      </DashboardShell>
-    );
   }
 
   // If no citizen profile exists, render Zero-OTP Onboarding Form

@@ -1,18 +1,25 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, ROLE_DEMO_USERS } from '@/lib/authContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import MobileBottomNav from './MobileBottomNav';
 import DesktopOnlyGuard from './DesktopOnlyGuard';
+import GovLoadingScreen from './GovLoadingScreen';
 
 // Roles that are strictly laptop/desktop only
 const DESKTOP_ROLES = ['chairman'];
 
 // Roles that are mobile-first
 const MOBILE_ROLES = ['citizen', 'employee', 'parshad'];
+
+const ROLE_LOADING_MESSAGES = {
+  citizen: 'नागरिक पोर्टल लोड हो रहा है...',
+  parshad: 'वार्ड पार्षद निगरानी पोर्टल लोड हो रहा है...',
+  employee: 'कर्मचारी हाजिरी व कार्य पोर्टल लोड हो रहा है...',
+};
 
 export default function DashboardShell({
   children,
@@ -21,9 +28,11 @@ export default function DashboardShell({
   hideBottomNav = false,
   guestMode = false,
   currentProfile,
+  loadingMessage,
 }) {
   const { profile, loading, switchRole } = useAuth();
   const router = useRouter();
+  const [shellMounted, setShellMounted] = useState(false);
 
   // If in guest mode, do not assign any profile or role links
   const effectiveProfile = guestMode
@@ -36,7 +45,16 @@ export default function DashboardShell({
           )
       );
 
+  const activeRole = guestMode ? 'guest' : (effectiveProfile?.role || requiredRole || 'citizen');
+  const isDesktopRole = DESKTOP_ROLES.includes(activeRole);
+  const isMobileRole = MOBILE_ROLES.includes(activeRole) || guestMode;
+
   useEffect(() => {
+    // Official government emblem loading screen for all mobile views
+    const timer = setTimeout(() => {
+      setShellMounted(true);
+    }, 1600);
+
     // Silently synchronize demo session in localStorage ONLY if authenticated
     if (!guestMode && requiredRole && ROLE_DEMO_USERS[requiredRole]) {
       try {
@@ -47,11 +65,22 @@ export default function DashboardShell({
         }
       } catch (_) {}
     }
+
+    return () => clearTimeout(timer);
   }, [requiredRole, guestMode]);
 
-  const activeRole = guestMode ? 'guest' : (effectiveProfile?.role || requiredRole || 'citizen');
-  const isDesktopRole = DESKTOP_ROLES.includes(activeRole);
-  const isMobileRole = MOBILE_ROLES.includes(activeRole) || guestMode;
+  // Render official Rajasthan emblem loading screen across all mobile panels
+  if (isMobileRole && !shellMounted) {
+    const displayMsg = loadingMessage || ROLE_LOADING_MESSAGES[activeRole] || 'पोर्टल लोड हो रहा है...';
+    return (
+      <div className={`app-shell ${guestMode ? 'guest-mode' : 'mobile-mode'}`}>
+        <Navbar currentProfile={effectiveProfile} guestMode={guestMode} />
+        <main className="app-main mobile-app-main">
+          <GovLoadingScreen message={displayMsg} />
+        </main>
+      </div>
+    );
+  }
 
   const content = (
     <div className={`app-shell ${guestMode ? 'guest-mode' : (isMobileRole ? 'mobile-mode' : 'desktop-mode')}`}>

@@ -86,15 +86,10 @@ const EMPLOYEES = [
 
 export default function ParshadPage() {
   const { profile } = useAuth();
-  const [mounted, setMounted] = useState(false);
   const [complaintsList, setComplaintsList] = useState(RECENT_COMPLAINTS);
   const [s, setStats] = useState(WARD_STATS);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 1200);
-
     const live = getSharedLiveComplaints(24);
     if (live && live.length > 0) {
       const formatted = live.map(c => ({
@@ -121,17 +116,7 @@ export default function ParshadPage() {
         }));
       }
     }
-
-    return () => clearTimeout(timer);
   }, []);
-
-  if (!mounted) {
-    return (
-      <DashboardShell requiredRole="parshad" hideBottomNav={true}>
-        <GovLoadingScreen message="वार्ड पार्षद निगरानी पोर्टल लोड हो रहा है..." />
-      </DashboardShell>
-    );
-  }
 
   return (
     <DashboardShell requiredRole="parshad">
