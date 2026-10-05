@@ -242,7 +242,7 @@ export default function ParshadEmployeesPage() {
                       }}
                     >
                       <Phone size={12} style={{ flexShrink: 0 }} />
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{emp.phone}</span>
+                      <span>{emp.phone}</span>
                     </a>
 
                     <button
@@ -258,10 +258,9 @@ export default function ParshadEmployeesPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         minWidth: 0,
-                        overflow: 'hidden',
                       }}
                     >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span>
                         {isSelected ? 'हाजिरी बंद ▴' : 'हाजिरी ▾'}
                       </span>
                     </button>

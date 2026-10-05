@@ -393,7 +393,7 @@ export default function ParshadPage() {
                   }}
                 >
                   <Phone size={12} style={{ flexShrink: 0 }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{emp.phone}</span>
+                  <span>{emp.phone}</span>
                 </a>
 
                 <Link
@@ -410,10 +410,9 @@ export default function ParshadPage() {
                     padding: '7px 8px',
                     whiteSpace: 'nowrap',
                     minWidth: 0,
-                    overflow: 'hidden',
                   }}
                 >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>हाजिरी देखें →</span>
+                  <span>हाजिरी देखें →</span>
                 </Link>
               </div>
             </div>

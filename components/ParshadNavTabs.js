@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 
 const TABS = [
-  { href: '/parshad',            label: 'मुख्य अवलोकन',    sub: 'Overview',        icon: LayoutDashboard },
-  { href: '/parshad/complaints', label: 'वार्ड शिकायतें',   sub: '32 शिकायतें',     icon: ClipboardList, badge: '32' },
-  { href: '/parshad/employees',  label: 'कर्मचारी व हाजिरी', sub: '6 फील्ड कर्मी',   icon: Users,         badge: '6' },
-  { href: '/parshad/areas',      label: 'वार्ड क्षेत्र व बीट', sub: '5 प्रमुख क्षेत्र',  icon: MapPin,        badge: '5' },
+  { href: '/parshad',            label: 'मुख्य अवलोकन',       sub: 'Overview',       icon: LayoutDashboard },
+  { href: '/parshad/complaints', label: 'वार्ड शिकायतें',      sub: '32 कुल मामले',    icon: ClipboardList, badge: '32' },
+  { href: '/parshad/employees',  label: 'कर्मचारी व हाजिरी',    sub: '6 फील्ड कर्मी',   icon: Users,         badge: '6' },
+  { href: '/parshad/areas',      label: 'वार्ड क्षेत्र व बीट', sub: '5 प्रमुख बीट',   icon: MapPin,        badge: '5' },
 ];
 
 export default function ParshadNavTabs() {
@@ -39,7 +39,7 @@ export default function ParshadNavTabs() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              padding: '10px 12px',
+              padding: '9px 10px',
               borderRadius: 12,
               textDecoration: 'none',
               border: isActive ? '1.5px solid #7c3aed' : '1px solid #e2e8f0',
@@ -49,7 +49,7 @@ export default function ParshadNavTabs() {
               transition: 'all 0.15s ease',
               minWidth: 0,
               boxSizing: 'border-box',
-              minHeight: 74,
+              minHeight: 78,
             }}
           >
             {/* Top row: Icon and Badge */}
@@ -84,26 +84,22 @@ export default function ParshadNavTabs() {
               )}
             </div>
 
-            {/* Bottom: Title & Subtitle */}
+            {/* Bottom: Title & Subtitle - 100% visible, zero truncation, words wrap cleanly */}
             <div style={{ width: '100%', minWidth: 0 }}>
               <div style={{
                 fontWeight: 800,
-                fontSize: '0.82rem',
-                lineHeight: 1.2,
+                fontSize: '0.80rem',
+                lineHeight: 1.25,
                 color: isActive ? '#ffffff' : '#0f172a',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                wordBreak: 'keep-all',
               }}>
                 {tab.label}
               </div>
               <div style={{
-                fontSize: '0.66rem',
+                fontSize: '0.67rem',
                 color: isActive ? '#e9d5ff' : '#64748b',
                 marginTop: 2,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                wordBreak: 'keep-all',
               }}>
                 {tab.sub}
               </div>
