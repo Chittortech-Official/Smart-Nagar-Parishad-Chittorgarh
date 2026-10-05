@@ -216,9 +216,8 @@ export default function ParshadEmployeesPage() {
 
                   {/* Bottom Row: Call Button + Toggle Attendance */}
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
                     gap: 8,
                     borderTop: '1px solid #f1f5f9',
                     paddingTop: 8,
@@ -228,27 +227,43 @@ export default function ParshadEmployeesPage() {
                       style={{
                         background: '#15803d',
                         color: '#ffffff',
-                        padding: '6px 14px',
-                        fontSize: '0.76rem',
+                        padding: '7px 8px',
+                        fontSize: '0.74rem',
                         fontWeight: 700,
                         textDecoration: 'none',
-                        display: 'inline-flex',
+                        display: 'flex',
                         alignItems: 'center',
-                        gap: 6,
+                        justifyContent: 'center',
+                        gap: 4,
                         borderRadius: 8,
                         whiteSpace: 'nowrap',
+                        minWidth: 0,
+                        overflow: 'hidden',
                       }}
                     >
-                      <Phone size={13} /> कॉल: {emp.phone}
+                      <Phone size={12} style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{emp.phone}</span>
                     </a>
 
                     <button
                       type="button"
                       onClick={() => setSelectedId(isSelected ? null : emp.id)}
                       className="btn btn-sm btn-outline"
-                      style={{ padding: '6px 12px', fontSize: '0.76rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+                      style={{
+                        padding: '7px 8px',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 0,
+                        overflow: 'hidden',
+                      }}
                     >
-                      {isSelected ? 'हाजिरी बंद ▴' : 'हाजिरी रजिस्टर ▾'}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {isSelected ? 'हाजिरी बंद ▴' : 'हाजिरी ▾'}
+                      </span>
                     </button>
                   </div>
                 </div>

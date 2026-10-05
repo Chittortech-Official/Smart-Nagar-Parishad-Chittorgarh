@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
+import GovLoadingScreen from '@/components/GovLoadingScreen';
 import { useAuth } from '@/lib/authContext';
 import { getSharedLiveComplaints } from '@/lib/citizenService';
 import {
@@ -85,10 +86,15 @@ const EMPLOYEES = [
 
 export default function ParshadPage() {
   const { profile } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [complaintsList, setComplaintsList] = useState(RECENT_COMPLAINTS);
   const [s, setStats] = useState(WARD_STATS);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 1200);
+
     const live = getSharedLiveComplaints(24);
     if (live && live.length > 0) {
       const formatted = live.map(c => ({
@@ -115,7 +121,17 @@ export default function ParshadPage() {
         }));
       }
     }
+
+    return () => clearTimeout(timer);
   }, []);
+
+  if (!mounted) {
+    return (
+      <DashboardShell requiredRole="parshad" hideBottomNav={true}>
+        <GovLoadingScreen message="वार्ड पार्षद निगरानी पोर्टल लोड हो रहा है..." />
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell requiredRole="parshad">
@@ -153,34 +169,34 @@ export default function ParshadPage() {
       <ParshadNavTabs />
 
       {/* 3. Ward Complaint Metric Cards - Mobile Responsive Auto-Fit */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginBottom: 16 }}>
-        <Link href="/parshad/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #1e3a8a', textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{s.total}</div>
-          <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginBottom: 16 }}>
+        <Link href="/parshad/complaints" className="card" style={{ padding: '12px 8px', textAlign: 'center', borderTop: '4px solid #1e3a8a', textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#1e3a8a', lineHeight: 1 }}>{s.total}</div>
+          <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, marginTop: 4 }}>कुल शिकायतें</div>
         </Link>
 
-        <Link href="/parshad/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #d97706', textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{s.pending}</div>
-          <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>निस्तारण लंबित</div>
+        <Link href="/parshad/complaints" className="card" style={{ padding: '12px 8px', textAlign: 'center', borderTop: '4px solid #d97706', textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{s.pending}</div>
+          <div style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: 700, marginTop: 4 }}>निस्तारण लंबित</div>
         </Link>
 
-        <Link href="/parshad/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #7c3aed', textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#7c3aed', lineHeight: 1 }}>{s.inProgress}</div>
-          <div style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 700, marginTop: 4 }}>प्रगति पर</div>
+        <Link href="/parshad/complaints" className="card" style={{ padding: '12px 8px', textAlign: 'center', borderTop: '4px solid #7c3aed', textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#7c3aed', lineHeight: 1 }}>{s.inProgress}</div>
+          <div style={{ fontSize: '0.72rem', color: '#7c3aed', fontWeight: 700, marginTop: 4 }}>प्रगति पर</div>
         </Link>
 
-        <Link href="/parshad/complaints" className="card" style={{ padding: '14px 10px', textAlign: 'center', borderTop: '4px solid #16a34a', textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{s.resolved}</div>
-          <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>समाधान पूर्ण</div>
+        <Link href="/parshad/complaints" className="card" style={{ padding: '12px 8px', textAlign: 'center', borderTop: '4px solid #16a34a', textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#16a34a', lineHeight: 1 }}>{s.resolved}</div>
+          <div style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 700, marginTop: 4 }}>समाधान पूर्ण</div>
         </Link>
       </div>
 
       {/* 4. Recent Ward Complaints with Direct Page Links */}
       <div className="card" style={{ marginBottom: 16, padding: '18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+          <div style={{ flex: '1 1 200px' }}>
             <h2 style={{ fontSize: '1.05rem', color: '#1e3a8a', fontWeight: 800, margin: 0 }}>
-              हालिया वार्ड शिकायतें (क्लिक करने पर अलग पेज खुलेगा)
+              हालिया वार्ड शिकायतें
             </h2>
             <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
               शिकायत पर क्लिक कर पूरा नागरिक विवरण, फोटो व रूटिंग स्थिति देखें
@@ -188,7 +204,17 @@ export default function ParshadPage() {
           </div>
           <Link
             href="/parshad/complaints"
-            style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{
+              fontSize: '0.8rem',
+              color: '#0284c7',
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
           >
             समस्त 32 देखें <ChevronRight size={14} />
           </Link>
@@ -275,8 +301,8 @@ export default function ParshadPage() {
 
       {/* 5. Ward 24 Field Staff Section with Phone Calls */}
       <div className="card" style={{ padding: '18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
+          <div style={{ flex: '1 1 200px' }}>
             <h2 style={{ fontSize: '1.05rem', color: '#1e3a8a', fontWeight: 800, margin: 0 }}>
               वार्ड 24 फील्ड कर्मचारी दल
             </h2>
@@ -286,7 +312,17 @@ export default function ParshadPage() {
           </div>
           <Link
             href="/parshad/employees"
-            style={{ fontSize: '0.8rem', color: '#0284c7', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{
+              fontSize: '0.8rem',
+              color: '#0284c7',
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
           >
             विस्तृत हाजिरी रजिस्टर <ChevronRight size={14} />
           </Link>
@@ -346,9 +382,8 @@ export default function ParshadPage() {
 
               {/* Bottom Row: Call Button + Full History Link */}
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
                 gap: 8,
                 borderTop: '1px solid #f1f5f9',
                 paddingTop: 8,
@@ -358,33 +393,42 @@ export default function ParshadPage() {
                   style={{
                     background: '#15803d',
                     color: '#ffffff',
-                    padding: '6px 14px',
-                    fontSize: '0.76rem',
+                    padding: '7px 8px',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
                     textDecoration: 'none',
-                    display: 'inline-flex',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: 6,
+                    justifyContent: 'center',
+                    gap: 4,
                     borderRadius: 8,
                     whiteSpace: 'nowrap',
+                    minWidth: 0,
+                    overflow: 'hidden',
                   }}
                 >
-                  <Phone size={13} /> कॉल: {emp.phone}
+                  <Phone size={12} style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{emp.phone}</span>
                 </a>
 
                 <Link
                   href="/parshad/employees"
+                  className="btn btn-sm btn-outline"
                   style={{
-                    color: '#0284c7',
-                    fontSize: '0.78rem',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
                     textDecoration: 'none',
-                    display: 'inline-flex',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: 4,
+                    justifyContent: 'center',
+                    gap: 2,
+                    padding: '7px 8px',
+                    whiteSpace: 'nowrap',
+                    minWidth: 0,
+                    overflow: 'hidden',
                   }}
                 >
-                  हाजिरी देखें →
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>हाजिरी देखें →</span>
                 </Link>
               </div>
             </div>

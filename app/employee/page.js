@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
+import GovLoadingScreen from '@/components/GovLoadingScreen';
 import { useAuth } from '@/lib/authContext';
 import {
   MapPin, CheckCircle, Clock, Calendar,
@@ -12,6 +13,7 @@ import Link from 'next/link';
 
 export default function EmployeePage() {
   const { profile } = useAuth();
+  const [mounted, setMounted]         = useState(false);
   const [attended, setAttended]       = useState(false);
   const [attendTime, setAttendTime]   = useState('');
   const [locating, setLocating]       = useState(false);
@@ -19,6 +21,10 @@ export default function EmployeePage() {
   const [locationName, setLocationName] = useState('वार्ड 24 (भारत माता चौक, चित्तौड़गढ़)');
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 1200);
+
     const now = new Date();
     setDateStr(now.toLocaleDateString('hi-IN', {
       weekday: 'long',
@@ -38,6 +44,8 @@ export default function EmployeePage() {
         }
       }
     } catch (_) {}
+
+    return () => clearTimeout(timer);
   }, []);
 
   function markAttendance() {
@@ -70,6 +78,14 @@ export default function EmployeePage() {
     } else {
       setTimeout(() => recordPunch(formattedTime), 600);
     }
+  }
+
+  if (!mounted) {
+    return (
+      <DashboardShell requiredRole="employee" hideBottomNav={true}>
+        <GovLoadingScreen message="कर्मचारी हाजिरी व कार्य पोर्टल लोड हो रहा है..." />
+      </DashboardShell>
+    );
   }
 
   return (
