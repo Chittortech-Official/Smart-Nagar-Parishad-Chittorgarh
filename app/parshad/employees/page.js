@@ -171,71 +171,84 @@ export default function ParshadEmployeesPage() {
                 }}
               >
                 <div style={{
-                  padding: '12px 14px',
+                  padding: '14px 16px',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
+                  flexDirection: 'column',
                   gap: 10,
                   background: isSelected ? '#f0fdf4' : '#ffffff',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      background: emp.status === 'present' ? '#dcfce7' : '#fee2e2',
-                      border: `1.5px solid ${emp.status === 'present' ? '#86efac' : '#fca5a5'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.9rem',
-                      fontWeight: 800,
-                      color: emp.status === 'present' ? '#15803d' : '#dc2626',
-                    }}>
-                      {emp.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
-                        {emp.name}
+                  {/* Top Row: Avatar + Name/Role + Attendance Status Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: emp.status === 'present' ? '#dcfce7' : '#fee2e2',
+                        border: `1.5px solid ${emp.status === 'present' ? '#86efac' : '#fca5a5'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.9rem',
+                        fontWeight: 800,
+                        color: emp.status === 'present' ? '#15803d' : '#dc2626',
+                        flexShrink: 0,
+                      }}>
+                        {emp.name.charAt(0)}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        {emp.role}
+                      <div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem', lineHeight: 1.2 }}>
+                          {emp.name}
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: 2 }}>
+                          {emp.role}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className={`badge ${emp.status === 'present' ? 'badge-present' : 'badge-absent'}`} style={{ fontSize: '0.75rem' }}>
+                    <span
+                      className={`badge ${emp.status === 'present' ? 'badge-present' : 'badge-absent'}`}
+                      style={{ fontSize: '0.74rem', whiteSpace: 'nowrap', padding: '4px 10px', borderRadius: 9999 }}
+                    >
                       {emp.status === 'present' ? `✓ उपस्थित (${emp.punchTime})` : '✗ अनुपस्थित'}
                     </span>
+                  </div>
 
+                  {/* Bottom Row: Call Button + Toggle Attendance */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
+                    borderTop: '1px solid #f1f5f9',
+                    paddingTop: 8,
+                  }}>
                     <a
                       href={`tel:${emp.phone}`}
-                      className="btn btn-sm"
                       style={{
                         background: '#15803d',
                         color: '#ffffff',
-                        padding: '6px 12px',
-                        fontSize: '0.75rem',
+                        padding: '6px 14px',
+                        fontSize: '0.76rem',
                         fontWeight: 700,
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 4,
-                        borderRadius: 8
+                        gap: 6,
+                        borderRadius: 8,
+                        whiteSpace: 'nowrap',
                       }}
                     >
-                      <Phone size={12} /> {emp.phone}
+                      <Phone size={13} /> कॉल: {emp.phone}
                     </a>
 
                     <button
                       type="button"
                       onClick={() => setSelectedId(isSelected ? null : emp.id)}
                       className="btn btn-sm btn-outline"
-                      style={{ padding: '6px 10px', fontSize: '0.75rem', fontWeight: 600 }}
+                      style={{ padding: '6px 12px', fontSize: '0.76rem', fontWeight: 700, whiteSpace: 'nowrap' }}
                     >
-                      {isSelected ? 'हाजिरी बंद ▴' : 'हाजिरी देखें ▾'}
+                      {isSelected ? 'हाजिरी बंद ▴' : 'हाजिरी रजिस्टर ▾'}
                     </button>
                   </div>
                 </div>
