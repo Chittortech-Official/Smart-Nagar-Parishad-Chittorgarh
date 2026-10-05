@@ -8,6 +8,7 @@ import {
   fetchAppointmentsFromCloud,
   subscribeToAppointments,
   updateAppointmentStatus,
+  deleteAppointment,
   getChairmanTourStatus,
   setChairmanTourStatus,
 } from '@/lib/appointmentService';
@@ -15,11 +16,13 @@ import {
   Calendar, Clock, Phone, MapPin, Building,
   AlertCircle, CheckCircle2, ChevronLeft, ArrowRight,
   Shield, Sparkles, Filter, Search, User, MessageCircle,
-  PhoneCall, RefreshCw, Send, Check, Plane, X, AlertTriangle
+  PhoneCall, RefreshCw, Send, Check, Plane, X, AlertTriangle, Trash2
 } from 'lucide-react';
 
 export default function ChairmanAppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [isOnTour, setIsOnTour] = useState(false);
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'PENDING' | 'APPROVED' | 'RESCHEDULED' | 'COMPLETED'
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,11 +40,17 @@ export default function ChairmanAppointmentsPage() {
 
     let isMounted = true;
     fetchAppointmentsFromCloud().then(list => {
-      if (isMounted) setAppointments(list);
+      if (isMounted) {
+        setAppointments(list);
+        setLoading(false);
+      }
     });
 
     const unsubscribe = subscribeToAppointments(list => {
-      if (isMounted) setAppointments(list);
+      if (isMounted) {
+        setAppointments(list);
+        setLoading(false);
+      }
     });
 
     return () => {
@@ -104,6 +113,20 @@ export default function ChairmanAppointmentsPage() {
       officerNotes: 'सभापति कक्ष में व्यक्तिगत जनसुनवाई पूर्ण। आवश्यक निर्देश जारी किए गए।',
     });
     setAppointments(getAppointments());
+  }
+
+  async function handleCloudSync() {
+    setIsSyncing(true);
+    const fresh = await fetchAppointmentsFromCloud();
+    setAppointments(fresh);
+    setIsSyncing(false);
+  }
+
+  async function handleDeleteAppointment(tokenCode) {
+    if (confirm(`क्या आप अपॉइंटमेंट ${tokenCode} को हटाना चाहते हैं? यह डेटाबेस से भी स्थायी रूप से हट जाएगा।`)) {
+      const updated = await deleteAppointment(tokenCode);
+      setAppointments(updated);
+    }
   }
 
   // Filtered List
@@ -234,6 +257,29 @@ export default function ChairmanAppointmentsPage() {
                   {isOnTour ? 'कार्यालय उपस्थिति दर्ज करें' : 'टूर पर मार्क करें'}
                 </button>
               </div>
+
+              <button
+                type="button"
+                onClick={handleCloudSync}
+                disabled={isSyncing}
+                style={{
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
+                  color: '#1e3a8a',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  cursor: isSyncing ? 'wait' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  alignSelf: 'flex-end',
+                }}
+              >
+                <RefreshCw size={13} className={isSyncing ? 'spin' : ''} />
+                {isSyncing ? 'सिंक हो रहा है...' : 'लाइव क्लाउड सिंक (Supabase)'}
+              </button>
 
               {isOnTour && (
                 <button
@@ -570,6 +616,27 @@ export default function ChairmanAppointmentsPage() {
                     ✓ भेंट सम्पन्न
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteAppointment(apt.tokenCode)}
+                  style={{
+                    background: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: 6,
+                    padding: '6px 12px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                  title="क्लाउड डेटाबेस से हटाएं"
+                >
+                  <Trash2 size={13} /> हटाएं
+                </button>
               </div>
             </div>
           ))}
