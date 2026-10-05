@@ -28,7 +28,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html 
-      lang="hi" 
+      lang="en-IN" 
       translate="no" 
       data-scroll-behavior="smooth" 
       className={`notranslate ${inter.variable} ${poppins.variable} ${notoDevanagari.variable}`}
@@ -36,9 +36,10 @@ export default function RootLayout({ children }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google" content="notranslate" />
+        <meta name="googlebot" content="notranslate" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.png" type="image/png" />
-        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="logo.png" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body>
