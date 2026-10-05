@@ -50,24 +50,29 @@ export default function DashboardShell({
   const isMobileRole = MOBILE_ROLES.includes(activeRole) || guestMode;
 
   useEffect(() => {
+    // Role Gate: Only citizens can browse publicly.
+    // Parshad, Employee, and Chairman portals require prior login via /demo!
+    if (!guestMode && requiredRole && requiredRole !== 'citizen') {
+      try {
+        const stored = localStorage.getItem('sc_demo_session');
+        const parsed = stored ? JSON.parse(stored) : null;
+        if (!parsed || parsed.role !== requiredRole) {
+          router.replace('/citizen');
+          return;
+        }
+      } catch (_) {
+        router.replace('/citizen');
+        return;
+      }
+    }
+
     // Official government emblem loading screen for all mobile views
     const timer = setTimeout(() => {
       setShellMounted(true);
     }, 1600);
 
-    // Silently synchronize demo session in localStorage ONLY if authenticated
-    if (!guestMode && requiredRole && ROLE_DEMO_USERS[requiredRole]) {
-      try {
-        const stored = localStorage.getItem('sc_demo_session');
-        const parsed = stored ? JSON.parse(stored) : null;
-        if (!parsed || parsed.role !== requiredRole) {
-          localStorage.setItem('sc_demo_session', JSON.stringify(ROLE_DEMO_USERS[requiredRole]));
-        }
-      } catch (_) {}
-    }
-
     return () => clearTimeout(timer);
-  }, [requiredRole, guestMode]);
+  }, [requiredRole, guestMode, router]);
 
   // Render official Rajasthan emblem loading screen across all mobile panels
   if (isMobileRole && !shellMounted) {
