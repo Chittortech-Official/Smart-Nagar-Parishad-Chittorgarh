@@ -1,21 +1,29 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getSharedLiveComplaints } from '@/lib/citizenService';
 import {
   LayoutDashboard, ClipboardList, Users,
   MapPin
 } from 'lucide-react';
 
-const TABS = [
-  { href: '/parshad',            label: 'मुख्य अवलोकन',       sub: 'Overview',       icon: LayoutDashboard },
-  { href: '/parshad/complaints', label: 'वार्ड शिकायतें',      sub: '32 कुल मामले',    icon: ClipboardList, badge: '32' },
-  { href: '/parshad/employees',  label: 'कर्मचारी व हाजिरी',    sub: '6 फील्ड कर्मी',   icon: Users,         badge: '6' },
-  { href: '/parshad/areas',      label: 'वार्ड क्षेत्र व बीट', sub: '5 प्रमुख बीट',   icon: MapPin,        badge: '5' },
-];
-
 export default function ParshadNavTabs() {
   const pathname = usePathname();
+  const [complaintCount, setComplaintCount] = useState(0);
+
+  useEffect(() => {
+    const live = getSharedLiveComplaints(24) || [];
+    setComplaintCount(live.length);
+  }, []);
+
+  const TABS = [
+    { href: '/parshad',            label: 'मुख्य अवलोकन',       sub: 'Overview',                                         icon: LayoutDashboard },
+    { href: '/parshad/complaints', label: 'वार्ड शिकायतें',      sub: `${complaintCount} शिकायतें`,                       icon: ClipboardList, badge: String(complaintCount) },
+    { href: '/parshad/employees',  label: 'कर्मचारी व हाजिरी',    sub: '6 फील्ड कर्मी',                                    icon: Users,         badge: '6' },
+    { href: '/parshad/areas',      label: 'वार्ड क्षेत्र व बीट', sub: '5 प्रमुख बीट',                                    icon: MapPin,        badge: '5' },
+  ];
 
   return (
     <div style={{

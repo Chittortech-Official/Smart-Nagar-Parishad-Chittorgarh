@@ -12,108 +12,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const WARD_COMPLAINTS = [
-  {
-    id: 1,
-    code: 'CTNP-2026-000125',
-    category: 'कचरा सफाई (Garbage Clearance)',
-    status: 'in_progress',
-    location: 'बस स्टैंड के पास, वार्ड 24',
-    date: '01 अक्टू 2026, 09:30 AM',
-    citizen: 'राजेश कुमार',
-    citizenPhone: '98290-54321',
-    description: 'बस स्टैंड के मुख्य तिराहे पर कचरा पात्र ओवरफ्लो हो रहा है एवं आवारा पशु जमा हैं। कृपया तत्काल सफाई करवाई जाए।',
-    photo: true,
-    dept: 'स्वास्थ्य एवं स्वच्छता शाखा',
-    employee: 'रमेश मीणा (सफाई जमादार)',
-    routedBy: 'कंट्रोल रूम राउटर द्वारा स्वास्थ्य शाखा को प्रेषित',
-  },
-  {
-    id: 2,
-    code: 'CTNP-2026-000118',
-    category: 'सड़क गड्ढा मरम्मत (Road Pothole)',
-    status: 'assigned',
-    location: 'मुख्य बाजार सड़क, निकट क्लॉक टावर',
-    date: '30 सितं 2026, 04:15 PM',
-    citizen: 'महेश सोनी',
-    citizenPhone: '98290-67890',
-    description: 'मुख्य बाजार की सड़क पर गहरा गड्ढा हो गया है, रात्रि में दुपहिया वाहन चालकों के गिरने का खतरा है।',
-    photo: true,
-    dept: 'निर्माण एवं इंजीनियरिंग शाखा',
-    employee: 'सुनील कुमार (निर्माण सहायक)',
-    routedBy: 'कंट्रोल रूम राउटर द्वारा निर्माण शाखा को प्रेषित',
-  },
-  {
-    id: 3,
-    code: 'CTNP-2026-000109',
-    category: 'स्ट्रीट लाइट बंद (Street Light)',
-    status: 'submitted',
-    location: 'न्यू कॉलोनी, गली नं. 2',
-    date: '29 सितं 2026, 08:00 PM',
-    citizen: 'सुनीता देवी',
-    citizenPhone: '98290-33445',
-    description: 'गली नं. 2 के खंभा संख्या 08 की एलईडी लाइट विगत तीन दिवस से बंद है, पूरा मोहल्ला अंधेरे में है।',
-    photo: false,
-    dept: 'विद्युत अनुभाग',
-    employee: 'विद्युत टीम (आवंटन प्रक्रियाधीन)',
-    routedBy: 'नया पंजीकरण — कंट्रोल रूम रूटिंग लंबित',
-  },
-  {
-    id: 4,
-    code: 'CTNP-2026-000098',
-    category: 'नाली अवरुद्ध / जलभराव (Drainage)',
-    status: 'reopened',
-    location: 'प्राथमिक विद्यालय पास',
-    date: '28 सितं 2026, 11:20 AM',
-    citizen: 'दिनेश कुमावत',
-    citizenPhone: '98290-88776',
-    description: 'नाली में कचरा फंसने से गंदा पानी सड़क पर बह रहा है। विद्यालय के बच्चों को निकलने में कठिनाई है।',
-    photo: true,
-    dept: 'स्वास्थ्य एवं स्वच्छता शाखा',
-    employee: 'रमेश मीणा (सफाई जमादार)',
-    routedBy: 'पुनः खुली — प्राथमिक स्तर पर जांच जारी',
-  },
-  {
-    id: 5,
-    code: 'CTNP-2026-000085',
-    category: 'पेयजल लीकेज (Water Pipeline)',
-    status: 'resolved',
-    location: 'चौराहा प्याऊ के पास',
-    date: '25 सितं 2026, 03:00 PM',
-    citizen: 'सुरेश कुमावत',
-    citizenPhone: '98290-11223',
-    description: 'प्याऊ के पास पाइपलाइन में मुख्य जोड़ पर लीकेज हो रहा था, जिससे पानी बह रहा था।',
-    photo: true,
-    dept: 'जल प्रदाय शाखा',
-    employee: 'दिनेश शर्मा (जल प्रदाय प्रभारी)',
-    routedBy: 'जल प्रदाय शाखा द्वारा निस्तारित',
-  },
-  {
-    id: 6,
-    code: 'CTNP-2026-000072',
-    category: 'सफाई व्यवस्था (Area Sanitation)',
-    status: 'closed',
-    location: 'सब्जी मंडी चौक',
-    date: '20 सितं 2026, 08:30 AM',
-    citizen: 'अशोक जैन',
-    citizenPhone: '98290-99887',
-    description: 'सब्जी मंडी के पीछे कचरे के ढेर का नियमित उठाव नहीं हो रहा था। टीम द्वारा सम्पूर्ण सफाई पूर्ण।',
-    photo: true,
-    dept: 'स्वास्थ्य एवं स्वच्छता शाखा',
-    employee: 'गीता देवी (सफाईकर्मी)',
-    routedBy: 'सत्यापित एवं समाधान पूर्ण',
-  },
-];
+const WARD_COMPLAINTS = [];
 
 export default function ParshadComplaintsPage() {
   const { profile } = useAuth();
-  const [allComplaints, setAllComplaints] = useState(WARD_COMPLAINTS);
+  const [allComplaints, setAllComplaints] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    const live = getSharedLiveComplaints(24);
-    if (live && live.length > 0) {
+    function refreshComplaints() {
+      const live = getSharedLiveComplaints(24) || [];
       const formatted = live.map(c => ({
         id: c.id || c.code,
         code: c.code,
@@ -121,8 +30,8 @@ export default function ParshadComplaintsPage() {
         status: c.status || 'submitted',
         location: c.location,
         date: c.date,
-        citizen: c.citizenName || 'नागरिक',
-        citizenPhone: c.citizenPhone || '98290-00000',
+        citizen: c.citizenName || 'राजेश कुमार शर्मा',
+        citizenPhone: c.citizenPhone || '98290-12345',
         description: c.description || 'नागरिक द्वारा दर्ज शिकायत',
         photo: !!c.hasPhoto,
         dept: c.dept,
@@ -130,12 +39,11 @@ export default function ParshadComplaintsPage() {
         routedBy: 'नागरिक पोर्टल द्वारा स्वतः रूटेड',
         isNew: true,
       }));
-      const existingCodes = new Set(WARD_COMPLAINTS.map(c => c.code));
-      const newItems = formatted.filter(item => !existingCodes.has(item.code));
-      if (newItems.length > 0) {
-        setAllComplaints([...newItems, ...WARD_COMPLAINTS]);
-      }
+      setAllComplaints(formatted);
     }
+    refreshComplaints();
+    window.addEventListener('storage', refreshComplaints);
+    return () => window.removeEventListener('storage', refreshComplaints);
   }, []);
 
   const filtered = allComplaints.filter(c => {
@@ -158,7 +66,7 @@ export default function ParshadComplaintsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
             <h1 style={{ fontSize: '1.35rem', color: '#1e3a8a', marginBottom: 2, fontWeight: 800 }}>
-              वार्ड 24 — समस्त नागरिक शिकायतें (32)
+              वार्ड 24 — समस्त नागरिक शिकायतें ({allComplaints.length})
             </h1>
             <p style={{ fontSize: '0.8125rem', color: '#64748b', margin: 0 }}>
               किसी भी शिकायत पर क्लिक करके उसका पूरा विवरण, फोटो प्रमाण व रूटिंग स्थिति देखें
@@ -179,7 +87,7 @@ export default function ParshadComplaintsPage() {
             className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline'}`}
             style={{ fontSize: '0.75rem', padding: '6px 14px' }}
           >
-            सभी (All)
+            सभी ({allComplaints.length})
           </button>
           <button
             type="button"
@@ -187,7 +95,7 @@ export default function ParshadComplaintsPage() {
             className={`btn btn-sm ${filter === 'open' ? 'btn-primary' : 'btn-outline'}`}
             style={{ fontSize: '0.75rem', padding: '6px 14px' }}
           >
-            लंबित / प्रगति पर (4)
+            लंबित / प्रगति पर ({allComplaints.filter(c => ['submitted', 'assigned', 'in_progress', 'reopened'].includes(c.status)).length})
           </button>
           <button
             type="button"
@@ -195,7 +103,7 @@ export default function ParshadComplaintsPage() {
             className={`btn btn-sm ${filter === 'resolved' ? 'btn-primary' : 'btn-outline'}`}
             style={{ fontSize: '0.75rem', padding: '6px 14px' }}
           >
-            निस्तारित (2)
+            निस्तारित ({allComplaints.filter(c => ['resolved', 'closed'].includes(c.status)).length})
           </button>
         </div>
 
@@ -220,59 +128,89 @@ export default function ParshadComplaintsPage() {
 
       {/* Complaints List with Direct Links */}
       <div className="card" style={{ padding: '16px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {filtered.map(c => (
-            <Link
-              key={c.id}
-              href={`/parshad/complaints/${c.id}`}
-              style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-            >
-              <div
-                style={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 12,
-                  padding: '14px 16px',
-                  background: '#ffffff',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                  transition: 'all 0.15s ease',
-                  cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-                  width: '100%',
-                  boxSizing: 'border-box'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#f0f9ff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
+        {filtered.length === 0 ? (
+          <div style={{
+            background: '#ffffff',
+            border: '1.5px dashed #cbd5e1',
+            borderRadius: 12,
+            padding: '32px 16px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.8rem', marginBottom: 8 }}>🌿</div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#16a34a', marginBottom: 4 }}>
+              वार्ड 24 में कोई लंबित शिकायत नहीं है (All Clear)
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+              नागरिक ई-सेवा पोर्टल से जैसे ही वार्ड 24 की नई समस्या दर्ज होगी, वह यहाँ तुरंत प्रदर्शित होगी।
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {filtered.map(c => (
+              <Link
+                key={c.id}
+                href={`/parshad/complaints/${c.id}`}
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
               >
-                {/* Top Row: Token + Category + Photo Badge + Status Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800, background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>
-                      {c.code}
-                    </span>
-                    <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.94rem' }}>
-                      {c.category}
-                    </strong>
-                    {c.photo && (
-                      <span style={{
-                        background: '#e0f2fe',
-                        color: '#0369a1',
-                        padding: '2px 8px',
-                        borderRadius: 9999,
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                      }}>
-                        📷 फोटो संलग्न
+                <div
+                  style={{
+                    border: c.isNew ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
+                    borderRadius: 12,
+                    padding: '14px 16px',
+                    background: c.isNew ? '#fffbeb' : '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    transition: 'all 0.15s ease',
+                    cursor: 'pointer',
+                    boxShadow: c.isNew ? '0 4px 12px rgba(245, 158, 11, 0.15)' : '0 1px 2px rgba(0,0,0,0.02)',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#f0f9ff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.isNew ? '#f59e0b' : '#e2e8f0'; e.currentTarget.style.background = c.isNew ? '#fffbeb' : '#ffffff'; }}
+                >
+                  {/* Top Row: Token + Category + Photo Badge + Status Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800, background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>
+                        {c.code}
                       </span>
-                    )}
+                      <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.94rem' }}>
+                        {c.category}
+                      </strong>
+                      {c.isNew && (
+                        <span style={{
+                          background: '#fef3c7',
+                          color: '#b45309',
+                          border: '1px solid #fde68a',
+                          padding: '2px 8px',
+                          borderRadius: 9999,
+                          fontSize: '0.7rem',
+                          fontWeight: 800,
+                        }}>
+                          ✨ अभी-अभी दर्ज (New)
+                        </span>
+                      )}
+                      {c.photo && (
+                        <span style={{
+                          background: '#e0f2fe',
+                          color: '#0369a1',
+                          padding: '2px 8px',
+                          borderRadius: 9999,
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                        }}>
+                          📷 फोटो संलग्न
+                        </span>
+                      )}
+                    </div>
+                    <StatusBadge status={c.status} />
                   </div>
-                  <StatusBadge status={c.status} />
-                </div>
 
                 {/* Description Quote */}
                 <div style={{ fontSize: '0.82rem', color: '#475569', lineHeight: 1.5, background: '#f8fafc', padding: '8px 12px', borderRadius: 8, borderLeft: '3px solid #cbd5e1' }}>
-                  "{c.description}"
+                  &ldquo;{c.description}&rdquo;
                 </div>
 
                 {/* Bottom Row: Location + Citizen + Date + Action */}
@@ -298,6 +236,7 @@ export default function ParshadComplaintsPage() {
             </Link>
           ))}
         </div>
+        )}
       </div>
     </DashboardShell>
   );

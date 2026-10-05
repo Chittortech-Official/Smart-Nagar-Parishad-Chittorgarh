@@ -14,66 +14,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const WARD_STATS = {
+const INITIAL_WARD_STATS = {
   wardNumber: 24,
   wardName: 'भारत माता चौक क्षेत्र',
-  total: 32,
-  pending: 8,
-  inProgress: 7,
-  resolved: 17,
+  total: 0,
+  pending: 0,
+  inProgress: 0,
+  resolved: 0,
   employees: { total: 6, present: 5, absent: 1 },
 };
 
-const RECENT_COMPLAINTS = [
-  {
-    id: 1,
-    code: 'CTNP-2026-000125',
-    category: 'कचरा सफाई (Garbage Clearance)',
-    status: 'in_progress',
-    location: 'बस स्टैंड के पास, वार्ड 24',
-    date: '01 अक्टू 2026',
-    citizen: 'राजेश कुमार',
-    photo: true,
-    dept: 'स्वास्थ्य एवं स्वच्छता शाखा',
-    employee: 'रमेश मीणा',
-  },
-  {
-    id: 2,
-    code: 'CTNP-2026-000118',
-    category: 'सड़क गड्ढा मरम्मत (Road Pothole)',
-    status: 'assigned',
-    location: 'मुख्य बाजार सड़क, निकट क्लॉक टावर',
-    date: '30 सितं 2026',
-    citizen: 'महेश सोनी',
-    photo: true,
-    dept: 'निर्माण एवं इंजीनियरिंग शाखा',
-    employee: 'सुनील कुमार',
-  },
-  {
-    id: 3,
-    code: 'CTNP-2026-000109',
-    category: 'स्ट्रीट लाइट बंद (Street Light)',
-    status: 'submitted',
-    location: 'न्यू कॉलोनी, गली नं. 2',
-    date: '29 सितं 2026',
-    citizen: 'सुनीता देवी',
-    photo: false,
-    dept: 'विद्युत अनुभाग',
-    employee: 'विद्युत टीम',
-  },
-  {
-    id: 4,
-    code: 'CTNP-2026-000098',
-    category: 'नाली अवरुद्ध / जलभराव (Drainage)',
-    status: 'reopened',
-    location: 'प्राथमिक विद्यालय पास',
-    date: '28 सितं 2026',
-    citizen: 'दिनेश कुमावत',
-    photo: true,
-    dept: 'स्वास्थ्य एवं स्वच्छता शाखा',
-    employee: 'रमेश मीणा',
-  },
-];
+const RECENT_COMPLAINTS = [];
 
 const EMPLOYEES = [
   { id: 1, name: 'रमेश मीणा',   role: 'वरिष्ठ स्वच्छता कर्मी (जमादार)', phone: '98290-44121', status: 'present', punchTime: '07:30 AM' },
@@ -86,12 +37,12 @@ const EMPLOYEES = [
 
 export default function ParshadPage() {
   const { profile } = useAuth();
-  const [complaintsList, setComplaintsList] = useState(RECENT_COMPLAINTS);
-  const [s, setStats] = useState(WARD_STATS);
+  const [complaintsList, setComplaintsList] = useState([]);
+  const [s, setStats] = useState(INITIAL_WARD_STATS);
 
   useEffect(() => {
-    const live = getSharedLiveComplaints(24);
-    if (live && live.length > 0) {
+    function loadWardData() {
+      const live = getSharedLiveComplaints(24) || [];
       const formatted = live.map(c => ({
         id: c.id || c.code,
         code: c.code,
@@ -99,23 +50,28 @@ export default function ParshadPage() {
         status: c.status || 'submitted',
         location: c.location,
         date: c.date,
-        citizen: c.citizenName || 'नागरिक',
+        citizen: c.citizenName || 'राजेश कुमार शर्मा',
         photo: !!c.hasPhoto,
         dept: c.dept,
         employee: 'आवंटन प्रक्रियाधीन',
         isNew: true,
       }));
-      const existingCodes = new Set(RECENT_COMPLAINTS.map(c => c.code));
-      const newItems = formatted.filter(item => !existingCodes.has(item.code));
-      if (newItems.length > 0) {
-        setComplaintsList([...newItems, ...RECENT_COMPLAINTS]);
-        setStats(prev => ({
-          ...prev,
-          total: prev.total + newItems.length,
-          pending: prev.pending + newItems.length,
-        }));
-      }
+      setComplaintsList(formatted);
+      const pendingCount = formatted.filter(c => ['submitted', 'in_progress', 'assigned', 'reopened'].includes(c.status)).length;
+      const resolvedCount = formatted.filter(c => ['resolved', 'closed'].includes(c.status)).length;
+      setStats({
+        wardNumber: 24,
+        wardName: 'भारत माता चौक क्षेत्र',
+        total: formatted.length,
+        pending: pendingCount,
+        inProgress: 0,
+        resolved: resolvedCount,
+        employees: { total: 6, present: 5, absent: 1 },
+      });
     }
+    loadWardData();
+    window.addEventListener('storage', loadWardData);
+    return () => window.removeEventListener('storage', loadWardData);
   }, []);
 
   return (
@@ -201,67 +157,97 @@ export default function ParshadPage() {
               flexShrink: 0,
             }}
           >
-            समस्त 32 देखें <ChevronRight size={14} />
+            समस्त {s.total} देखें <ChevronRight size={14} />
           </Link>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {complaintsList.map(c => (
-            <Link
-              key={c.id}
-              href={`/parshad/complaints/${c.id}`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'block',
-              }}
-            >
-              <div
+        {complaintsList.length === 0 ? (
+          <div style={{
+            background: '#ffffff',
+            border: '1.5px dashed #cbd5e1',
+            borderRadius: 12,
+            padding: '24px 16px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: 6 }}>🌿</div>
+            <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#16a34a', marginBottom: 4 }}>
+              वार्ड 24 में वर्तमान में कोई लंबित शिकायत नहीं है (All Clear)
+            </div>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
+              नागरिक ई-सेवा पोर्टल से जैसे ही वार्ड 24 की नई समस्या दर्ज होगी, वह यहाँ रियल-टाइम में प्रदर्शित होगी।
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {complaintsList.map(c => (
+              <Link
+                key={c.id}
+                href={`/parshad/complaints/${c.id}`}
                 style={{
-                  border: '1px solid #e2e8f0',
-                  borderRadius: 12,
-                  padding: '14px 16px',
-                  background: '#ffffff',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                  transition: 'all 0.15s ease',
-                  cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-                  width: '100%',
-                  boxSizing: 'border-box',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#f0f9ff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
               >
-                {/* Top Row: Token + Category + Status Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800, background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>
-                      {c.code}
-                    </span>
-                    <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.94rem' }}>
-                      {c.category}
-                    </strong>
-                    {c.photo && (
-                      <span style={{
-                        background: '#e0f2fe',
-                        color: '#0369a1',
-                        padding: '2px 8px',
-                        borderRadius: 9999,
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                      }}>
-                        📷 फोटो
+                <div
+                  style={{
+                    border: c.isNew ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
+                    borderRadius: 12,
+                    padding: '14px 16px',
+                    background: c.isNew ? '#fffbeb' : '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    transition: 'all 0.15s ease',
+                    cursor: 'pointer',
+                    boxShadow: c.isNew ? '0 4px 12px rgba(245, 158, 11, 0.15)' : '0 1px 2px rgba(0,0,0,0.02)',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#3b82f6'; e.currentTarget.style.background = '#f0f9ff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.isNew ? '#f59e0b' : '#e2e8f0'; e.currentTarget.style.background = c.isNew ? '#fffbeb' : '#ffffff'; }}
+                >
+                  {/* Top Row: Token + Category + Status Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.78rem', fontFamily: 'monospace', color: '#1e3a8a', fontWeight: 800, background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>
+                        {c.code}
                       </span>
-                    )}
+                      <strong style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.94rem' }}>
+                        {c.category}
+                      </strong>
+                      {c.isNew && (
+                        <span style={{
+                          background: '#fef3c7',
+                          color: '#b45309',
+                          border: '1px solid #fde68a',
+                          padding: '2px 8px',
+                          borderRadius: 9999,
+                          fontSize: '0.7rem',
+                          fontWeight: 800,
+                        }}>
+                          ✨ अभी-अभी दर्ज (Just Reported)
+                        </span>
+                      )}
+                      {c.photo && (
+                        <span style={{
+                          background: '#e0f2fe',
+                          color: '#0369a1',
+                          padding: '2px 8px',
+                          borderRadius: 9999,
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                        }}>
+                          📷 फोटो
+                        </span>
+                      )}
+                    </div>
+                    <StatusBadge status={c.status} />
                   </div>
-                  <StatusBadge status={c.status} />
-                </div>
 
-                {/* Bottom Row: Location + Citizen + Date + Action */}
-                <div style={{
-                  display: 'flex',
+                  {/* Bottom Row: Location + Citizen + Date + Action */}
+                  <div style={{
+                    display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: 8,
@@ -282,6 +268,7 @@ export default function ParshadPage() {
             </Link>
           ))}
         </div>
+        )}
       </div>
 
       {/* 5. Ward 24 Field Staff Section with Phone Calls */}

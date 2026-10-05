@@ -126,7 +126,7 @@ export default function Navbar({ currentProfile, guestMode = false }) {
                 }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
-                <span>नागरिक ई-सेवा केंद्र</span>
+                <span>नागरिक</span>
               </div>
             </div>
           )}

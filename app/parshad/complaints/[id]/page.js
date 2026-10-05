@@ -1,10 +1,11 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import DashboardShell from '@/components/DashboardShell';
 import ParshadNavTabs from '@/components/ParshadNavTabs';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/lib/authContext';
+import { getSharedLiveComplaints } from '@/lib/citizenService';
 import {
   ArrowLeft, MapPin, Phone, Calendar,
   Clock, Image, Send, ShieldCheck, CheckCircle2,
@@ -132,7 +133,38 @@ const ALL_COMPLAINTS_DATA = {
 export default function ParshadComplaintDetailPage({ params }) {
   const unwrappedParams = use(params);
   const id = unwrappedParams.id || '1';
-  const c = ALL_COMPLAINTS_DATA[id] || ALL_COMPLAINTS_DATA['1'];
+  const [complaint, setComplaint] = useState(ALL_COMPLAINTS_DATA[id] || ALL_COMPLAINTS_DATA['1']);
+
+  useEffect(() => {
+    const liveList = getSharedLiveComplaints();
+    const liveMatch = liveList.find(item => String(item.id) === String(id) || item.code === id);
+    if (liveMatch) {
+      setComplaint({
+        id: liveMatch.id,
+        code: liveMatch.code,
+        category: liveMatch.category,
+        status: liveMatch.status || 'submitted',
+        ward: liveMatch.ward || 'वार्ड 24',
+        location: liveMatch.location || 'वार्ड 24, चित्तौड़गढ़',
+        date: liveMatch.date || 'आज',
+        citizen: liveMatch.citizenName || 'राजेश कुमार शर्मा',
+        citizenPhone: liveMatch.citizenPhone || '98290-12345',
+        description: liveMatch.description || 'नागरिक द्वारा प्रस्तुत वार्ड समस्या का विवरण।',
+        photo: !!liveMatch.hasPhoto,
+        photoLabel: 'नागरिक द्वारा प्रेषित समस्या प्रमाण फोटो',
+        dept: liveMatch.dept || 'स्वास्थ्य एवं स्वच्छता शाखा',
+        employee: 'कार्य आवंटन प्रक्रियाधीन (संबंधित शाखा)',
+        employeePhone: '181 (कंट्रोल रूम)',
+        routedBy: 'नागरिक ई-सेवा पोर्टल द्वारा स्वतः विभागीय रूटिंग',
+        priority: 'उच्च प्राथमिकता (✨ अभी-अभी दर्ज)',
+        isLive: true,
+      });
+    } else if (ALL_COMPLAINTS_DATA[id]) {
+      setComplaint(ALL_COMPLAINTS_DATA[id]);
+    }
+  }, [id]);
+
+  const c = complaint;
 
   return (
     <DashboardShell requiredRole="parshad">

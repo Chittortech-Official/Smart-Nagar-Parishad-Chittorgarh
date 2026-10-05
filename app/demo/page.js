@@ -30,6 +30,8 @@ export default function DemoLoginPage() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
 
+  const [resetMsg, setResetMsg] = useState('');
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !password) { setError('कृपया ईमेल और पासवर्ड दर्ज करें।'); return; }
@@ -49,12 +51,51 @@ export default function DemoLoginPage() {
     setPassword('demo1234');
     setError('');
     setLoading(true);
+
+    if (demoEmail === 'citizen@demo.in' && typeof window !== 'undefined') {
+      const citizenProf = {
+        name: 'राजेश कुमार शर्मा',
+        phone: '9829012345',
+        ward: '24',
+        mohalla: 'भारत माता चौक, मुख्य बाजार',
+        pin: '1234',
+        role: 'citizen',
+      };
+      localStorage.setItem('sc_citizen_profile', JSON.stringify(citizenProf));
+    }
+
     const result = await login(demoEmail, 'demo1234');
     if (result.error) {
       setError(result.error);
       setLoading(false);
     } else {
       router.push(ROLE_PATHS[result.role] || '/citizen');
+    }
+  }
+
+  function handleResetWard24() {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem('sc_citizen_complaints_9829012345');
+
+      const rawShared = localStorage.getItem('sc_shared_live_complaints');
+      if (rawShared) {
+        const list = JSON.parse(rawShared);
+        const filtered = list.filter(c => String(c.ward || '').replace(/\D/g, '') !== '24');
+        localStorage.setItem('sc_shared_live_complaints', JSON.stringify(filtered));
+      }
+
+      const rawApt = localStorage.getItem('sc_sabhapati_appointments');
+      if (rawApt) {
+        const list = JSON.parse(rawApt);
+        const filtered = list.filter(a => String(a.wardNumber || '').replace(/\D/g, '') !== '24' && String(a.phonePrimary) !== '9829012345');
+        localStorage.setItem('sc_sabhapati_appointments', JSON.stringify(filtered));
+      }
+
+      setResetMsg('✅ वार्ड 24 का डेटा शून्य (0 शिकायतें, 0 अपॉइंटमेंट) कर दिया गया है! अब लाइव परीक्षण करें।');
+      setTimeout(() => setResetMsg(''), 5000);
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -162,6 +203,47 @@ export default function DemoLoginPage() {
                   </div>
                 </button>
               ))}
+            </div>
+
+            {/* Quick Reset for Ward 24 Live Testing */}
+            <div style={{ marginTop: 12, textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={handleResetWard24}
+                style={{
+                  background: '#f8fafc',
+                  border: '1px dashed #cbd5e1',
+                  borderRadius: 8,
+                  padding: '6px 14px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#475569',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#94a3b8'; e.currentTarget.style.color = '#0f172a'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#475569'; }}
+              >
+                🔄 वार्ड 24 टेस्ट डेटा रीसेट (Reset Ward 24 to 0 Complaints)
+              </button>
+
+              {resetMsg && (
+                <div style={{
+                  marginTop: 8,
+                  background: '#ecfdf5',
+                  border: '1px solid #a7f3d0',
+                  color: '#047857',
+                  padding: '6px 12px',
+                  borderRadius: 6,
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                }}>
+                  {resetMsg}
+                </div>
+              )}
             </div>
           </div>
 

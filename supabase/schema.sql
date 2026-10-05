@@ -379,3 +379,21 @@ CREATE INDEX IF NOT EXISTS idx_appointments_token ON sabhapati_appointments(toke
 CREATE INDEX IF NOT EXISTS idx_appointments_ward ON sabhapati_appointments(ward_number);
 CREATE INDEX IF NOT EXISTS idx_appointments_status ON sabhapati_appointments(status);
 
+-- Enable RLS and permissive policies for sabhapati_appointments
+ALTER TABLE sabhapati_appointments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read on sabhapati_appointments" ON sabhapati_appointments;
+CREATE POLICY "Allow public read on sabhapati_appointments" ON sabhapati_appointments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow public insert on sabhapati_appointments" ON sabhapati_appointments;
+CREATE POLICY "Allow public insert on sabhapati_appointments" ON sabhapati_appointments FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public update on sabhapati_appointments" ON sabhapati_appointments;
+CREATE POLICY "Allow public update on sabhapati_appointments" ON sabhapati_appointments FOR UPDATE USING (true);
+
+-- Seed demo appointments for other wards (Ward 24 is left empty for fresh live user testing)
+INSERT INTO sabhapati_appointments (id, token_code, full_name, community_surname, phone_primary, phone_secondary, ward_number, department, urgency, preferred_date, preferred_window, subject, status, slot_time, officer_notes)
+VALUES
+('b1111111-0000-0000-0000-000000000001', 'CTNP-APT-2610-0039', 'श्रीमती सुनीता शर्मा', 'ब्राह्मण समाज', '9829023456', '9829088776', 12, 'पट्टा एवं राजस्व शाखा', 'normal', '2026-10-06', 'morning', 'प्रशासन शहरों के संग अभियान अंतर्गत धारा 69A पट्टा पत्रावली स्वीकृति बाबत।', 'approved', '11:35 AM', 'पट्टा शाखा लिपिक को पत्रावली सहित उपस्थित रहने के निर्देश।'),
+('b1111111-0000-0000-0000-000000000002', 'CTNP-APT-2610-0040', 'कैलाश चंद्र धाकड़', 'किसान / धाकड़', '9829034567', '9414099887', 31, 'निर्माण एवं Engineering शाखा', 'urgent', '2026-10-06', 'afternoon', 'सेंथी मुख्य संपर्क मार्ग पुलिया सुरक्षा दीवार निर्माण व पेचवर्क।', 'pending', 'प्रतीक्षारत', ''),
+('b1111111-0000-0000-0000-000000000003', 'CTNP-APT-2610-0041', 'महेंद्र सिंह राठौड़', 'राजपूत समाज', '9829045678', '9829011223', 8, 'विद्युत अनुभाग (स्ट्रीट लाइट)', 'normal', '2026-10-07', 'morning', 'किला रोड प्रवेश मार्ग पर नई हाई-मास्ट एलईडी लाइट स्थापना प्रस्ताव।', 'pending', 'प्रतीक्षारत', '')
+ON CONFLICT (token_code) DO NOTHING;
+
+
