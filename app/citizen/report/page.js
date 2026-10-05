@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/authContext';
 import {
   Camera, MapPin, Send, AlertCircle, Trash2,
   Waves, Construction, Zap, TreePine, PawPrint,
-  HelpCircle, Droplets, Building, ChevronLeft, CheckCircle
+  HelpCircle, Droplets, Building, ChevronLeft, CheckCircle, Crown
 } from 'lucide-react';
 import CitizenOnboarding from '@/components/CitizenOnboarding';
 
@@ -225,6 +225,60 @@ export default function ReportPage() {
             </div>
           ))}
         </div>
+
+        {/* Sabhapati Direct Meeting Quick Banner */}
+        {step === 1 && (
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            border: '1.5px solid #93c5fd',
+            borderRadius: 14,
+            padding: '12px 16px',
+            marginBottom: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 36, height: 36,
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #1e3a8a, #1e40af)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Crown size={18} color="#f59e0b" />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.88rem' }}>
+                  क्या आप सीधे सभापति श्री अनिल जी ईनाणी से मिलना चाहते हैं?
+                </div>
+                <div style={{ fontSize: '0.74rem', color: '#475569' }}>
+                  व्यक्तिगत जनसुनवाई अथवा अति आवश्यक प्रकरण हेतु डिजिटल अपॉइंटमेंट टोकन प्राप्त करें
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/citizen/appointment"
+              style={{
+                background: '#1e3a8a',
+                color: '#ffffff',
+                padding: '7px 16px',
+                borderRadius: 8,
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 6px rgba(30, 58, 138, 0.2)',
+              }}
+            >
+              सभापति से भेंट बुक करें →
+            </Link>
+          </div>
+        )}
 
         {/* STEP 1: Categories Responsive Grid */}
         {step === 1 && (

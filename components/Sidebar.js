@@ -8,15 +8,16 @@ import {
   Bell, ChevronRight, Building2,
   ClipboardList, Landmark, Shield,
   Tag, UserCog, LogOut, CheckCircle2,
-  AlertTriangle
+  AlertTriangle, Calendar
 } from 'lucide-react';
 
 const NAV = {
   chairman: [
-    { href: '/chairman',            label: 'नगर परिषद डैशबोर्ड', sub: 'City Overview', icon: LayoutDashboard },
-    { href: '/chairman/wards',      label: 'समस्त 60 वार्ड',     sub: 'All Wards',     icon: MapPin },
-    { href: '/chairman/departments',label: 'नगरपालिका विभाग',   sub: 'Departments',   icon: Building2 },
-    { href: '/chairman/authorities',label: 'प्रमुख पदाधिकारी',   sub: 'MP, MLA & Officers', icon: Landmark },
+    { href: '/chairman',              label: 'नगर परिषद डैशबोर्ड',   sub: 'City Overview',       icon: LayoutDashboard },
+    { href: '/chairman/wards',        label: 'समस्त 60 वार्ड',       sub: 'All Wards',           icon: MapPin },
+    { href: '/chairman/appointments', label: 'सभापति मुलाकात अनुरोध', sub: 'Janata Darbar & Meets', icon: Calendar },
+    { href: '/chairman/departments',  label: 'नगरपालिका विभाग',     sub: 'Departments',         icon: Building2 },
+    { href: '/chairman/authorities',  label: 'प्रमुख पदाधिकारी',     sub: 'MP, MLA & Officers',   icon: Landmark },
   ],
 };
 

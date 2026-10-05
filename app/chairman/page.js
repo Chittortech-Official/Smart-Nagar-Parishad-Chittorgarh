@@ -9,13 +9,13 @@ import {
   FileText, AlertTriangle, CheckCircle, Clock,
   Users, MapPin, Building2, RotateCcw, ChevronRight,
   UserCheck, UserX, BarChart3, Map, ShieldAlert,
-  ArrowRight, CheckSquare
+  ArrowRight, CheckSquare, Crown, Calendar
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { CHITTORGARH_60_WARDS, PARTY_COLORS } from '@/lib/data/wardsResults';
 
 const CITY_STATS = {
-  total: 247, open: 48, inProgress: 63, resolved: 124, overdue: 12,
+  total: 247, open: 48, inProgress: 63, resolved: 124, overdue: 0,
   employees: { total: 312, present: 281, absent: 31 },
   tasks: { total: 520, completed: 441, pending: 79 },
 };
@@ -107,36 +107,52 @@ export default function ChairmanPage() {
         </div>
       </div>
 
-      {/* Emergency Alert Banner */}
-      {s.overdue > 0 && (
-        <div className="alert alert-error" style={{ marginBottom: 'var(--space-4)', padding: '12px 16px' }}>
-          <AlertTriangle size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: 2 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, color: '#991b1b', fontSize: '0.875rem' }}>
-              ⚠️ {s.overdue} नागरिक शिकायतें तय समय सीमा (SLA) से अधिक लंबित हैं!
+      {/* Sabhapati Janata Darbar Active Intimation Strip */}
+      <div style={{
+        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        border: '1.5px solid #93c5fd',
+        borderRadius: 14,
+        padding: '12px 18px',
+        marginBottom: 'var(--space-4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+        boxShadow: '0 2px 8px rgba(30, 58, 138, 0.06)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#1e3a8a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Crown size={18} color="#f59e0b" />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.92rem' }}>
+              सभापति ई-जनता दरबार: नागरिकों से भेंट व समय आवंटन अनुरोध
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#b91c1c', marginTop: 2 }}>
-              संबंधित विभागीय अधिकारियों को तत्काल निस्तारण हेतु कारण बताओ चेतावनी प्रेषित की गई है।
+            <div style={{ fontSize: '0.75rem', color: '#475569' }}>
+              वार्ड 24 (राजेश कुमार), वार्ड 12 (सुनीता शर्मा) सहित नए अपॉइंटमेंट समीक्षा हेतु प्रतीक्षारत हैं
             </div>
           </div>
-          <button
-            onClick={() => setActiveTab('overdue')}
-            style={{
-              background: '#ffffff',
-              border: '1px solid #fca5a5',
-              color: '#dc2626',
-              borderRadius: 6,
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            विवरण देखें →
-          </button>
         </div>
-      )}
+        <Link
+          href="/chairman/appointments"
+          style={{
+            background: '#1e3a8a',
+            color: '#ffffff',
+            padding: '7px 16px',
+            borderRadius: 8,
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            boxShadow: '0 2px 6px rgba(30, 58, 138, 0.25)'
+          }}
+        >
+          <Calendar size={14} /> अनुरोध प्रबंधित करें →
+        </Link>
+      </div>
 
       {/* Citywide Stats Grid */}
       <div className="stat-grid" style={{ marginBottom: 'var(--space-4)', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))' }}>

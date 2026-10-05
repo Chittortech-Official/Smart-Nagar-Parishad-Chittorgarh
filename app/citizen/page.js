@@ -14,7 +14,8 @@ import {
   FileText, ClipboardList, CheckCircle, Clock,
   Plus, ChevronRight, ArrowRight, PhoneCall,
   MapPin, Truck, UserCheck, ShieldCheck, AlertCircle,
-  HelpCircle, Sparkles, CheckCircle2, User, LogOut, Phone
+  HelpCircle, Sparkles, CheckCircle2, User, LogOut, Phone,
+  Crown, Calendar
 } from 'lucide-react';
 
 const STATUS_CONFIG = {
@@ -208,6 +209,71 @@ export default function CitizenPage() {
           <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 700, marginTop: 4 }}>पुनः खुली</div>
         </Link>
       </div>
+
+      {/* 2.5 Sabhapati Meeting / Appointment Booking Card */}
+      <Link
+        href="/citizen/appointment"
+        id="sabhapati-appointment-btn"
+        style={{
+          background: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)',
+          borderRadius: 14,
+          padding: '14px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          textDecoration: 'none',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(30, 58, 138, 0.22)',
+          marginBottom: 16,
+          border: '1.5px solid #f59e0b',
+          transition: 'all 0.15s ease',
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 44, height: 44,
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.4)',
+          }}>
+            <Crown size={22} color="#ffffff" />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 800, fontSize: '0.98rem', color: '#ffffff' }}>
+                सभापति जी से व्यक्तिगत भेंट / जनसुनवाई
+              </span>
+              <span style={{ fontSize: '0.68rem', background: '#f59e0b', color: '#78350f', padding: '1px 6px', borderRadius: 4, fontWeight: 900 }}>
+                ई-अपॉइंटमेंट
+              </span>
+            </div>
+            <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: 2 }}>
+              सभापति श्री अनिल जी ईनाणी के समक्ष व्यक्तिगत प्रकरण प्रस्तुत करने हेतु टोकन लें
+            </div>
+          </div>
+        </div>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.15)',
+          borderRadius: 8,
+          padding: '6px 12px',
+          fontSize: '0.78rem',
+          fontWeight: 700,
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          flexShrink: 0,
+        }}>
+          अनुरोध करें <ChevronRight size={14} />
+        </div>
+      </Link>
 
       {/* 3. Main Action Touch Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>

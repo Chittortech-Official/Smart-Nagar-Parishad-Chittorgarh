@@ -352,12 +352,30 @@ ON CONFLICT (name) DO NOTHING;
 --    admin@demo.in    / Demo@1234
 -- 3. Copy each UUID from the Users list
 -- 4. Replace the UUIDs below and run:
--- ══════════════════════════════════════════════════════════════
+-- ── 12. SABHAPATI APPOINTMENTS (Janata Darbar & Citizen Hearing) ────
+CREATE TABLE IF NOT EXISTS sabhapati_appointments (
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  token_code          TEXT NOT NULL UNIQUE, -- e.g. CTNP-APT-2610-0042 (Collision-Proof)
+  full_name           TEXT NOT NULL,
+  community_surname   TEXT,
+  phone_primary       TEXT NOT NULL,
+  phone_secondary     TEXT NOT NULL, -- Mandatory backup number for Secretariat coordination
+  ward_number         INTEGER NOT NULL CHECK (ward_number BETWEEN 1 AND 60),
+  department          TEXT NOT NULL,
+  urgency             TEXT NOT NULL DEFAULT 'normal' CHECK (urgency IN ('urgent', 'normal', 'courtesy')),
+  preferred_date      DATE,
+  preferred_window    TEXT CHECK (preferred_window IN ('morning', 'afternoon')),
+  subject             TEXT NOT NULL,
+  status              TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rescheduled', 'completed', 'cancelled')),
+  slot_time           TEXT, -- e.g. '11:30 AM'
+  officer_notes       TEXT,
+  reschedule_reason   TEXT,
+  created_at          TIMESTAMPTZ DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ DEFAULT NOW()
+);
 
--- INSERT INTO profiles (id, full_name, phone, role, ward_id, department_id, employee_code)
--- SELECT
---   '<citizen-uuid>', 'Rajesh Kumar', '9876543210', 'citizen',
---   (SELECT id FROM wards WHERE ward_number=24), NULL, NULL
--- ON CONFLICT (id) DO NOTHING;
+-- Index for instant lookup by token_code and ward_number
+CREATE INDEX IF NOT EXISTS idx_appointments_token ON sabhapati_appointments(token_code);
+CREATE INDEX IF NOT EXISTS idx_appointments_ward ON sabhapati_appointments(ward_number);
+CREATE INDEX IF NOT EXISTS idx_appointments_status ON sabhapati_appointments(status);
 
--- (Repeat for employee, parshad, officer, chairman, super_admin)
